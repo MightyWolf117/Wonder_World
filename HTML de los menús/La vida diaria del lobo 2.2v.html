@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Fenrir - La Vida Diaria del Lobo v3.1</title>
+    <style>
+        :root {
+            --bg-principal: #040a12;
+            --bg-tarjeta: #0b111a;
+            --bg-panel-izq: #0a120f;
+            --borde: #30241b;
+            --plata-lunar: #cbd5e1;
+            --azul-ego: #00d9ff;
+            --verde-triage: #00ff66;
+            --rojo-frenesi: #ff3333;
+            --amarillo-mood: #ffcc00;
+            --oro-moneda: #ffd700;
+            --fuente-hud: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--plata-lunar);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contenedor { max-width: 1200px; width: 100%; }
+
+        header {
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { margin: 0; color: #fff; font-size: 1.5rem; letter-spacing: 2px; font-family: var(--fuente-hud); font-weight: bold; }
+        
+        .sensor-temporal {
+            background-color: #101a26;
+            border: 1px solid var(--azul-ego);
+            color: var(--azul-ego);
+            font-family: var(--fuente-hud);
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hud-deltas {
+            background-color: #060b12;
+            border: 2px solid var(--borde);
+            border-radius: 4px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+        }
+        .delta-stat-box { display: flex; gap: 20px; flex-wrap: wrap; }
+        .delta-card { text-align: center; font-family: var(--fuente-hud); min-width: 65px; }
+        .delta-titulo { font-size: 0.7rem; color: #52667a; text-transform: uppercase; margin-bottom: 3px; }
+        .delta-valor { font-size: 1.3rem; font-weight: bold; color: #fff; }
+        .delta-pos { color: var(--verde-triage) !important; }
+        .delta-neg { color: var(--rojo-frenesi) !important; }
+
+        .grid-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 25px; margin-bottom: 25px; }
+        @media (max-width: 950px) { .grid-layout { grid-template-columns: 1fr; } }
+
+        .panel { border: 1px solid var(--borde); padding: 20px; border-radius: 4px; height: fit-content; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .panel-izq { background-color: var(--bg-panel-izq); }
+        .panel-der { background-color: var(--bg-tarjeta); }
+        
+        h2 { font-size: 0.95rem; margin-top: 0; border-left: 3px solid var(--plata-lunar); padding-left: 8px; font-family: var(--fuente-hud); text-transform: uppercase; letter-spacing: 1px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+
+        .linea-tarea {
+            background: #04070a;
+            border: 1px solid #16201a;
+            padding: 10px 14px;
+            border-radius: 2px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+        .linea-tarea.alerta-reincidencia { border-color: var(--amarillo-mood) !important; box-shadow: 0 0 8px rgba(255, 204, 0, 0.2); }
+        
+        .tarea-row-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .tarea-info { flex: 1; font-family: var(--fuente-hud); }
+        .tarea-nombre { font-weight: bold; font-size: 0.9rem; color: #fff; display: flex; align-items: center; gap: 6px; }
+        .tarea-desc-fx { font-size: 0.72rem; color: #506959; margin-top: 2px; }
+
+        .btn-group { display: flex; gap: 4px; }
+        .btn-tactic {
+            background: #090e14;
+            border: 1px solid #1c2b3d;
+            color: #4b5d6c;
+            padding: 6px 10px;
+            font-size: 0.7rem;
+            font-family: var(--fuente-hud);
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.1s ease;
+        }
+        .btn-tactic:hover { color: #fff; border-color: var(--plata-lunar); }
+        .btn-tactic.active-cumplida { background: #082410; border-color: var(--verde-triage); color: var(--verde-triage); text-shadow: 0 0 4px var(--verde-triage); }
+        .btn-tactic.active-nocumplida { background: #330d0d; border-color: var(--rojo-frenesi); color: var(--rojo-frenesi); text-shadow: 0 0 4px var(--rojo-frenesi); }
+        .btn-tactic.active-saltada { background: #241e0a; border-color: var(--amarillo-mood); color: var(--amarillo-mood); }
+
+        .btn-action { background: #08111c; border: 1px solid var(--borde); color: var(--plata-lunar); padding: 8px 14px; font-family: var(--fuente-hud); font-size: 0.8rem; font-weight: bold; cursor: pointer; border-radius: 2px; transition: all 0.15s; }
+        .btn-action:hover { border-color: var(--azul-ego); background: #122136; color: #fff; }
+
+        .panel-edit-inline { background: #03060a; border: 1px dashed var(--azul-ego); padding: 8px; margin-top: 6px; border-radius: 2px; font-family: var(--fuente-hud); font-size: 0.75rem; display: flex; flex-direction: column; gap: 6px; }
+        .panel-edit-inline input, .panel-edit-inline select { background: #0b121c; border: 1px solid var(--borde); color: #fff; padding: 4px; font-family: var(--fuente-hud); font-size: 0.75rem; }
+
+        .badge-tag { font-size: 0.6rem; font-family: var(--fuente-hud); padding: 1px 5px; border-radius: 2px; font-weight: bold; text-transform: uppercase; }
+        .badge-diaria { background: #1a2636; color: var(--azul-ego); }
+        .badge-nodiaria { background: #241a36; color: #c880ff; }
+
+        details { background: #070c14; border: 1px solid var(--borde); border-radius: 4px; width: 100%; }
+        summary { padding: 12px; font-family: var(--fuente-hud); font-size: 0.85rem; font-weight: bold; cursor: pointer; color: #fff; user-select: none; }
+        summary:hover { background: #0c1524; }
+
+        .checkbox-matrix { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 6px; background: #03060a; border: 1px solid var(--borde); border-radius: 2px; }
+        .checkbox-matrix label { font-family: var(--fuente-hud); font-size: 0.65rem; display: flex; align-items: center; gap: 2px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <div>
+                <h1>ALPHA FENRIR TACTICAL CORE</h1>
+                <div style="font-family:var(--fuente-hud); font-size:0.8rem; color:#627569;">Perímetro de Patrulla v3.1 | La Vida Diaria del Lobo</div>
+            </div>
+            
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <div class="sensor-temporal">
+                    <span id="display-fecha-simulada">[ FECHA... ]</span>
+                    <button class="btn-tactic" onclick="resincronizarRelojReal()" style="padding:2px 6px; font-size:0.6rem; color:var(--azul-ego);">🔄 Reloj Real</button>
+                </div>
+                <button class="btn-action" onclick="exportarDataJSON()" style="color:var(--azul-ego); border-color:var(--azul-ego);">📥 Exportar</button>
+                <button class="btn-action" onclick="document.getElementById('input-json-import').click()">📤 Importar</button>
+                <input type="file" id="input-json-import" accept=".json" style="display:none;" onchange="importarDataJSON(this)">
+            </div>
+        </header>
+
+        <div class="hud-deltas">
+            <div class="delta-stat-box">
+                <div class="delta-card"><div class="delta-titulo">Δ Energía</div><div class="delta-valor" id="d-energia">0</div></div>
+                <div class="delta-card"><div class="delta-titulo">Δ Estrés</div><div class="delta-valor" id="d-estres">0</div></div>
+                <div class="delta-card"><div class="delta-titulo">Δ Mood</div><div class="delta-valor" id="d-mood">0</div></div>
+                <div class="delta-card"><div class="delta-titulo">Δ EGO</div><div class="delta-valor" id="d-ego">0</div></div>
+                <div class="delta-card"><div class="delta-titulo">Δ Monedas</div><div class="delta-valor" id="d-monedas" style="color:var(--oro-moneda);">0</div></div>
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button class="btn-action" onclick="limpiarDeltasSincronizacion()" style="color:var(--azul-ego); border-color:var(--azul-ego);">🧹 SINCRONIZAR CON MENÚ</button>
+                <button class="btn-action" onclick="ejecutarCierreDeTurno()" style="color: var(--verde-triage); border-color: var(--verde-triage);">⏳ Cerrar Turno Diario</button>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <div class="panel panel-izq">
+                <h2><span>Patrulla Activa de Hoy</span> <span style="font-size:0.7rem; color:#4e6153;" id="txt-rampa-conteo">0 Tareas</span></h2>
+                <div id="contenedor-rutinas-hoy" style="margin-top:12px;"></div>
+            </div>
+
+            <div class="panel panel-der">
+                <h2><span>🟠 Tareas Pendientes</span> <span style="font-size:0.65rem; color:#78582a;">(Deudas Activas)</span></h2>
+                <div id="contenedor-tareas-pendientes" style="margin-bottom:20px; margin-top:10px;"></div>
+
+                <h2><span>🛡️ Tareas Fuera de Horario</span> <span style="font-size:0.65rem; color:#526475;">(Adelantar & Escudos)</span></h2>
+                <div id="contenedor-fuera-horario" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <details>
+            <summary>🛠️ CREAR Y ADMINISTRAR RUTINAS BASE DE LA MANADA</summary>
+            <div style="padding:15px; background:#03060a; border-top:1px solid var(--borde);">
+                <h3 style="margin-top:0; font-family:var(--fuente-hud); font-size:0.85rem; color:var(--verde-triage);">+ Registrar Nueva Rutina Base</h3>
+                
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px; margin-bottom:10px;">
+                    <input type="text" id="new-nombre" placeholder="Nombre (Ej: Minoxidil)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem;">
+                    <input type="text" id="new-desc" placeholder="Nota táctica corta" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem;">
+                    <select id="new-tipo" onchange="toggleInputsTipoForm(this.value)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem;">
+                        <option value="diaria">Tipo: Diaria (Todos los días)</option>
+                        <option value="nodiaria">Tipo: No-Diaria (Días específicos)</option>
+                    </select>
+                    <select id="new-freq" onchange="toggleInputsFreqForm(this.value)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem; display:none;">
+                        <option value="semanal">Semanal (Días L-M-X-J-V-S-D)</option>
+                        <option value="interdiario">Interdiario (Par/Impar)</option>
+                        <option value="mensual">Día Fijo del Mes</option>
+                    </select>
+                    <input type="number" id="new-param" placeholder="Parámetro (Día del mes)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem; display:none;">
+                </div>
+
+                <div class="checkbox-matrix" id="wrapper-form-days" style="display:none; margin-bottom:10px;">
+                    <label><input type="checkbox" id="chk-1" value="1"> Lun</label>
+                    <label><input type="checkbox" id="chk-2" value="2"> Mar</label>
+                    <label><input type="checkbox" id="chk-3" value="3"> Mié</label>
+                    <label><input type="checkbox" id="chk-4" value="4"> Jue</label>
+                    <label><input type="checkbox" id="chk-5" value="5"> Vie</label>
+                    <label><input type="checkbox" id="chk-6" value="6"> Sáb</label>
+                    <label><input type="checkbox" id="chk-0" value="0"> Dom</label>
+                </div>
+
+                <div style="font-family:var(--fuente-hud); font-size:0.75rem; color:var(--amarillo-mood); margin-bottom:4px;">Debuff de Reincidencia (Penalización por fallar 2 veces seguidas):</div>
+                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:10px;">
+                    <input type="number" id="new-d-en" placeholder="Δ EN (Ej: -1)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem; text-align:center;">
+                    <input type="number" id="new-d-est" placeholder="Δ EST (Ej: 1)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem; text-align:center;">
+                    <input type="number" id="new-d-mo" placeholder="Δ MO (Ej: -1)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem; text-align:center;">
+                    <input type="number" id="new-d-ego" placeholder="Δ EGO (Ej: -1)" style="background:#0b121c; border:1px solid var(--borde); color:#fff; padding:6px; font-family:var(--fuente-hud); font-size:0.8rem; text-align:center;">
+                </div>
+
+                <button class="btn-action" onclick="inyectarNuevaRutinaAlCodice()" style="width:100%; color:var(--verde-triage); border-color:var(--verde-triage);">Inyectar Rutina al Tablero Maestro</button>
+            </div>
+            
+            <div style="padding:15px; background:#070c14;" id="contenedor-mantenimiento-rutinas"></div>
+        </details>
+    </div>
+
+    <script>
+        const CATALOGO_BASE_INICIAL = [
+            { id: "r1", nombre: "Minoxidil", desc: "Asegurar folículo matutino", tipo: "diaria", castigo: { energia:0, estres:0, mood:0, ego:-1 }, escudoActivo: false, reincidenciaCount: 0 },
+            { id: "r2", nombre: "Bañarse", desc: "Higiene personal profunda", tipo: "nodiaria", freqType: "semanal", days: [1, 3, 6], castigo: { energia:0, estres:0, mood:-1, ego:0 }, escudoActivo: false, reincidenciaCount: 0 },
+            { id: "r3", nombre: "Arreglarse la barba", desc: "Perfilado y elegancia Lycaon", tipo: "nodiaria", freqType: "semanal", days: [6], castigo: { energia:0, estres:0, mood:0, ego:-1 }, escudoActivo: false, reincidenciaCount: 0 },
+            { id: "r4", nombre: "Tomar las vitaminas", desc: "Suministro biológico suplementario", tipo: "nodiaria", freqType: "interdiario", castigo: { energia:-1, estres:0, mood:0, ego:0 }, escudoActivo: false, reincidenciaCount: 0 },
+            { id: "r5", nombre: "Escribir en el diario", desc: "Registro mental nocturno", tipo: "diaria", castigo: { energia:0, estres:1, mood:0, ego:0 }, escudoActivo: false, reincidenciaCount: 0 }
+        ];
+
+        let state = {
+            fechaSimuladaStr: "",
+            rutinasBase: [],
+            estadosPatrullaHoy: {},
+            tareasPendientes: [],
+            deltasAcumulados: { energia: 0, estres: 0, mood: 0, ego: 0, monedas: 0 }
+        };
+
+        let idEditandoInline = null;
+        let historialLobo = [];
+
+        function iniciarMenu() {
+            const cache = localStorage.getItem('fenrir_lobo_v3_state');
+            if (cache) {
+                state = JSON.parse(cache);
+            } else {
+                let hoy = new Date();
+                state.fechaSimuladaStr = hoy.toISOString().split('T')[0];
+                state.rutinasBase = JSON.parse(JSON.stringify(CATALOGO_BASE_INICIAL));
+            }
+            renderizarTodo();
+        }
+
+        function registrarHitoHistorial() {
+            if (historialLobo.length >= 30) historialLobo.shift();
+            historialLobo.push(JSON.stringify(state));
+        }
+
+        function guardarEnDisco() {
+            localStorage.setItem('fenrir_lobo_v3_state', JSON.stringify(state));
+        }
+
+        function exportarDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Fenrir_Lobo_Backup_${Date.now()}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importarDataJSON(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let parsed = JSON.parse(e.target.result);
+                        if (parsed.rutinasBase) {
+                            registrarHitoHistorial();
+                            state = parsed;
+                            guardarEnDisco();
+                            renderizarTodo();
+                            alert("¡Data de patrulla restaurada con éxito!");
+                        }
+                    } catch(err) { alert("Archivo JSON no válido."); }
+                };
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        function resincronizarRelojReal() {
+            registrarHitoHistorial();
+            let hoy = new Date();
+            state.fechaSimuladaStr = hoy.toISOString().split('T')[0];
+            guardarEnDisco();
+            renderizarTodo();
+        }
+
+        function evaluarHabitActivoFecha(r, fechaObj) {
+            if (r.tipo === 'diaria') return true;
+            let type = (r.freqType || 'semanal').trim().toLowerCase();
+            let dSemana = fechaObj.getDay();
+            let dMes = fechaObj.getDate();
+
+            if (type === 'semanal') return r.days && r.days.includes(dSemana);
+            if (type === 'mensual') return dMes === parseInt(r.param);
+            if (type === 'interdiario') {
+                let diff = Math.floor(fechaObj.getTime() / (1000 * 60 * 60 * 24));
+                return diff % 2 === 0;
+            }
+            return false;
+        }
+
+        function cambiarEstadoTareaHoy(id, nuevoEstado) {
+            registrarHitoHistorial();
+            let r = state.rutinasBase.find(item => item.id === id);
+            
+            if (nuevoEstado === 'nocumplida' && r && r.escudoActivo) {
+                r.escudoActivo = false;
+                nuevoEstado = 'saltada';
+                alert(`🛡️ ESCUDO ACTIVADO: La tarea ${r.nombre} fue protegida y marcada como SALTADA sin pérdidas ni deudas.`);
+            }
+
+            state.estadosPatrullaHoy[id] = nuevoEstado;
+            guardarEnDisco();
+            renderizarTodo();
+        }
+
+        function cumplirTareaPendiente(id) {
+            registrarHitoHistorial();
+            state.tareasPendientes = state.tareasPendientes.filter(pId => pId !== id);
+            alert("🎯 TAREA PENDIENTE SALDADA: Recuerda descontar -1 Caza (C) o -1 Salto (S) en tu Zona de Caza por la ejecución fuera de horario.");
+            guardarEnDisco();
+            renderizarTodo();
+        }
+
+        function adelantarTareaFueraHorario(id) {
+            let r = state.rutinasBase.find(item => item.id === id);
+            if (r && !r.escudoActivo) {
+                registrarHitoHistorial();
+                r.escudoActivo = true;
+                alert(`🛡️ OPERACIÓN ADELANTADA: Se forjó el Escudo Contra el Mal para ${r.nombre}. Recuerda descontar -1 Caza (C) o -1 Salto (S) en tu Zona de Caza.`);
+                guardarEnDisco();
+                renderizarTodo();
+            }
+        }
+
+        function ejecutarCierreDeTurno() {
+            let fechaParts = state.fechaSimuladaStr.split('-');
+            let fechaActualObj = new Date(fechaParts[0], fechaParts[1] - 1, fechaParts[2]);
+            let activasHoy = state.rutinasBase.filter(r => evaluarHabitActivoFecha(r, fechaActualObj));
+
+            let pendientesSinMarcar = activasHoy.some(r => !state.estadosPatrullaHoy[r.id]);
+            if (pendientesSinMarcar) {
+                alert("Operación abortada: Tienes tareas sin calificar en la patrulla de hoy.");
+                return;
+            }
+
+            registrarHitoHistorial();
+
+            let perfecto = activasHoy.every(r => state.estadosPatrullaHoy[r.id] === 'cumplida' || state.estadosPatrullaHoy[r.id] === 'saltada');
+
+            activasHoy.forEach(r => {
+                let st = state.estadosPatrullaHoy[r.id];
+
+                if (st === 'cumplida') {
+                    r.reincidenciaCount = 0;
+                    if (state.tareasPendientes.includes(r.id)) {
+                        state.tareasPendientes = state.tareasPendientes.filter(pId => pId !== r.id);
+                    }
+                } else if (st === 'nocumplida') {
+                    r.reincidenciaCount = (r.reincidenciaCount || 0) + 1;
+
+                    if (r.tipo === 'diaria') {
+                        if (r.reincidenciaCount >= 2) {
+                            state.deltasAcumulados.energia += r.castigo.energia;
+                            state.deltasAcumulados.estres += r.castigo.estres;
+                            state.deltasAcumulados.mood += r.castigo.mood;
+                            state.deltasAcumulados.ego += r.castigo.ego;
+                        }
+                    } else if (r.tipo === 'nodiaria') {
+                        if (r.reincidenciaCount === 1) {
+                            if (!state.tareasPendientes.includes(r.id)) state.tareasPendientes.push(r.id);
+                        } else if (r.reincidenciaCount >= 2) {
+                            state.deltasAcumulados.energia += r.castigo.energia;
+                            state.deltasAcumulados.estres += r.castigo.estres;
+                            state.deltasAcumulados.mood += r.castigo.mood;
+                            state.deltasAcumulados.ego += r.castigo.ego;
+                        }
+                    }
+                }
+            });
+
+            if (perfecto && activasHoy.length > 0) {
+                state.deltasAcumulados.monedas += 1;
+                alert("¡PERFECT SCORE!: Perímetro limpio. +1 Moneda asegurada en el HUD superior.");
+            } else {
+                alert("Turno diario cerrado. Los castigos por reincidencia han sido consolidados.");
+            }
+
+            fechaActualObj.setDate(fechaActualObj.getDate() + 1);
+            state.fechaSimuladaStr = fechaActualObj.toISOString().split('T')[0];
+            state.estadosPatrullaHoy = {};
+
+            guardarEnDisco();
+            renderizarTodo();
+        }
+
+        function limpiarDeltasSincronizacion() {
+            if (confirm("¿Confirmas la sincronización con tu Menú Táctico? Los balances del HUD volverán a 0.")) {
+                registrarHitoHistorial();
+                state.deltasAcumulados = { energia: 0, estres: 0, mood: 0, ego: 0, monedas: 0 };
+                guardarEnDisco();
+                renderizarTodo();
+            }
+        }
+
+        function toggleInputsTipoForm(val) {
+            const freqSelect = document.getElementById('new-freq');
+            if (val === 'nodiaria') freqSelect.style.display = 'block';
+            else { freqSelect.style.display = 'none'; document.getElementById('wrapper-form-days').style.display = 'none'; }
+        }
+
+        function toggleInputsFreqForm(val) {
+            const m = document.getElementById('wrapper-form-days');
+            const p = document.getElementById('new-param');
+            if (val === 'semanal') { m.style.display = 'grid'; p.style.display = 'none'; }
+            else if (val === 'mensual') { m.style.display = 'none'; p.style.display = 'block'; p.placeholder = "Día del mes (Ej: 20)"; }
+            else { m.style.display = 'none'; p.style.display = 'none'; }
+        }
+
+        function inyectarNuevaRutinaAlCodice() {
+            let nombre = document.getElementById('new-nombre').value.trim();
+            let desc = document.getElementById('new-desc').value.trim();
+            let tipo = document.getElementById('new-tipo').value;
+            let freqType = document.getElementById('new-freq').value;
+            let param = parseInt(document.getElementById('new-param').value) || 0;
+
+            if(!nombre) { alert("Asigna un identificador válido."); return; }
+            registrarHitoHistorial();
+
+            let days = [];
+            if(tipo === 'nodiaria' && freqType === 'semanal') {
+                for(let i=0; i<=6; i++) {
+                    if(document.getElementById(`chk-${i}`).checked) days.push(i);
+                }
+                if(days.length === 0) days = [1,2,3,4,5,6,0];
+            }
+
+            let castigo = {
+                energia: parseInt(document.getElementById('new-d-en').value) || 0,
+                estres: parseInt(document.getElementById('new-d-est').value) || 0,
+                mood: parseInt(document.getElementById('new-d-mo').value) || 0,
+                ego: parseInt(document.getElementById('new-d-ego').value) || 0
+            };
+
+            state.rutinasBase.push({
+                id: "r_" + Date.now(), nombre, desc: desc || "Patrulla de campo.", tipo,
+                freqType: tipo === 'nodiaria' ? freqType : 'diaria', days, param,
+                castigo, escudoActivo: false, reincidenciaCount: 0
+            });
+
+            document.getElementById('new-nombre').value = ''; document.getElementById('new-desc').value = '';
+            guardarEnDisco();
+            renderizarTodo();
+        }
+
+        function toggleEdicionInline(id) {
+            idEditandoInline = idEditandoInline === id ? null : id;
+            renderizarTodo();
+        }
+
+        function toggleEdicionFreqInline(id, val) {
+            const wrapper = document.getElementById(`wrapper-days-inline-${id}`);
+            const paramInput = document.getElementById(`ed-param-${id}`);
+            if (val === 'semanal') {
+                if (wrapper) wrapper.style.display = 'grid';
+                if (paramInput) paramInput.style.display = 'none';
+            } else if (val === 'mensual') {
+                if (wrapper) wrapper.style.display = 'none';
+                if (paramInput) paramInput.style.display = 'block';
+            } else {
+                if (wrapper) wrapper.style.display = 'none';
+                if (paramInput) paramInput.style.display = 'none';
+            }
+        }
+
+        function toggleEdicionTipoInline(id, val) {
+            const freqSelect = document.getElementById(`ed-freq-${id}`);
+            const wrapper = document.getElementById(`wrapper-days-inline-${id}`);
+            if (val === 'nodiaria') {
+                if (freqSelect) {
+                    freqSelect.style.display = 'block';
+                    toggleEdicionFreqInline(id, freqSelect.value);
+                }
+            } else {
+                if (freqSelect) freqSelect.style.display = 'none';
+                if (wrapper) wrapper.style.display = 'none';
+            }
+        }
+
+        function guardarEdicionInline(id) {
+            let r = state.rutinasBase.find(item => item.id === id);
+            if (r) {
+                registrarHitoHistorial();
+                r.nombre = document.getElementById(`ed-nom-${id}`).value.trim() || r.nombre;
+                r.desc = document.getElementById(`ed-desc-${id}`).value.trim() || r.desc;
+                r.tipo = document.getElementById(`ed-tipo-${id}`).value;
+
+                if (r.tipo === 'nodiaria') {
+                    r.freqType = document.getElementById(`ed-freq-${id}`).value;
+                    if (r.freqType === 'semanal') {
+                        let newDays = [];
+                        for (let i = 0; i <= 6; i++) {
+                            let chk = document.getElementById(`chk-ed-${id}-${i}`);
+                            if (chk && chk.checked) newDays.push(i);
+                        }
+                        r.days = newDays;
+                    } else if (r.freqType === 'mensual') {
+                        r.param = parseInt(document.getElementById(`ed-param-${id}`).value) || 1;
+                    }
+                } else {
+                    r.freqType = 'diaria';
+                    r.days = [];
+                }
+
+                r.castigo.energia = parseInt(document.getElementById(`ed-en-${id}`).value) || 0;
+                r.castigo.estres = parseInt(document.getElementById(`ed-est-${id}`).value) || 0;
+                r.castigo.mood = parseInt(document.getElementById(`ed-mo-${id}`).value) || 0;
+                r.castigo.ego = parseInt(document.getElementById(`ed-ego-${id}`).value) || 0;
+                
+                idEditandoInline = null;
+                guardarEnDisco();
+                renderizarTodo();
+            }
+        }
+
+        /* FUNCIONES DE REORDENAMIENTO MANUAL DE RUTINAS BASE */
+        function moverRutinaManual(index, direccion) {
+            if (index + direccion < 0 || index + direccion >= state.rutinasBase.length) return;
+            registrarHitoHistorial();
+            let temp = state.rutinasBase[index];
+            state.rutinasBase[index] = state.rutinasBase[index + direccion];
+            state.rutinasBase[index + direccion] = temp;
+            guardarEnDisco();
+            renderizarTodo();
+        }
+
+        function suprimirRutina(id) {
+            if (confirm("¿Eliminar definitivamente esta rutina del códice?")) {
+                registrarHitoHistorial();
+                state.rutinasBase = state.rutinasBase.filter(item => item.id !== id);
+                state.tareasPendientes = state.tareasPendientes.filter(pId => pId !== id);
+                delete state.estadosPatrullaHoy[id];
+                guardarEnDisco();
+                renderizarTodo();
+            }
+        }
+
+        function renderizarTodo() {
+            let diasTxt = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+            let fParts = state.fechaSimuladaStr.split('-');
+            let fechaActualObj = new Date(fParts[0], fParts[1] - 1, fParts[2]);
+            document.getElementById('display-fecha-simulada').innerText = `[ ${diasTxt[fechaActualObj.getDay()].toUpperCase()} ${fechaActualObj.getDate()} ]`;
+
+            // 1. Renderizar Columna Izquierda (Patrulla Activa de Hoy)
+            let activasHoy = state.rutinasBase.filter(r => evaluarHabitActivoFecha(r, fechaActualObj));
+            document.getElementById('txt-rampa-conteo').innerText = `${activasHoy.length} Tareas`;
+            
+            const rootHoy = document.getElementById('contenedor-rutinas-hoy');
+            rootHoy.innerHTML = '';
+
+            if (activasHoy.length === 0) {
+                rootHoy.innerHTML = '<div style="font-family:var(--fuente-hud); font-size:0.8rem; color:#405346; padding:15px;">Perímetro despejado: Sin patrullas programadas para hoy.</div>';
+            } else {
+                activasHoy.forEach(r => {
+                    let st = state.estadosPatrullaHoy[r.id] || "pendiente";
+                    let cArr = [];
+                    if(r.castigo.energia) cArr.push(`${r.castigo.energia} EN`);
+                    if(r.castigo.estres) cArr.push(`+${r.castigo.estres} ESTRES`);
+                    if(r.castigo.mood) cArr.push(`${r.castigo.mood} MOOD`);
+                    if(r.castigo.ego) cArr.push(`${r.castigo.ego} EGO`);
+
+                    let esRiesgo = r.reincidenciaCount >= 1;
+                    let badgeEscudo = r.escudoActivo ? `<span style="color:var(--verde-triage); font-size:0.75rem;">🛡️ ESCUDO ACTIVO</span>` : '';
+                    let badgeAlerta = esRiesgo ? `<span style="color:var(--amarillo-mood); font-size:0.65rem; font-weight:bold;">⚠️ RIESGO REINCIDENCIA</span>` : '';
+
+                    let div = document.createElement('div');
+                    div.className = `linea-tarea ${esRiesgo ? 'alerta-reincidencia' : ''}`;
+                    div.innerHTML = `
+                        <div class="tarea-row-main">
+                            <div class="tarea-info">
+                                <div class="tarea-nombre">
+                                    ${r.nombre} 
+                                    <span class="badge-tag badge-${r.tipo}">${r.tipo}</span>
+                                    ${badgeEscudo} ${badgeAlerta}
+                                </div>
+                                <div class="tarea-desc-fx">${r.desc} | Debuff: ${cArr.join(' | ') || 'Ninguno'}</div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn-tactic ${st === 'cumplida' ? 'active-cumplida' : ''}" onclick="cambiarEstadoTareaHoy('${r.id}', 'cumplida')">CUMPLIDA</button>
+                                <button class="btn-tactic ${st === 'saltada' ? 'active-saltada' : ''}" onclick="cambiarEstadoTareaHoy('${r.id}', 'saltada')">SALTADA</button>
+                                <button class="btn-tactic ${st === 'nocumplida' ? 'active-nocumplida' : ''}" onclick="cambiarEstadoTareaHoy('${r.id}', 'nocumplida')">FALLIDA</button>
+                            </div>
+                        </div>
+                    `;
+                    rootHoy.appendChild(div);
+                });
+            }
+
+            // 2. Renderizar Columna Derecha (Sub-panel 1: Tareas Pendientes)
+            const rootPendientes = document.getElementById('contenedor-tareas-pendientes');
+            rootPendientes.innerHTML = '';
+            if (state.tareasPendientes.length === 0) {
+                rootPendientes.innerHTML = '<div style="font-family:var(--fuente-hud); font-size:0.75rem; color:#4a5868;">Sin deudas activas. Perímetro limpio.</div>';
+            } else {
+                state.tareasPendientes.forEach(pId => {
+                    let r = state.rutinasBase.find(item => item.id === pId);
+                    if (r) {
+                        let div = document.createElement('div');
+                        div.className = 'linea-tarea';
+                        div.style.borderColor = 'var(--amarillo-mood)';
+                        div.innerHTML = `
+                            <div class="tarea-row-main">
+                                <div class="tarea-info">
+                                    <div class="tarea-nombre" style="color:var(--amarillo-mood);">${r.nombre}</div>
+                                    <div class="tarea-desc-fx">Deuda pendiente de ejecuciones previas.</div>
+                                </div>
+                                <button class="btn-action" style="color:var(--amarillo-mood); border-color:var(--amarillo-mood); font-size:0.7rem;" onclick="cumplirTareaPendiente('${r.id}')">⚡ CUMPLIR AHORA (-1 C/S)</button>
+                            </div>
+                        `;
+                        rootPendientes.appendChild(div);
+                    }
+                });
+            }
+
+            // 3. Renderizar Columna Derecha (Sub-panel 2: Tareas Fuera de Horario)
+            const rootFueraHorario = document.getElementById('contenedor-fuera-horario');
+            rootFueraHorario.innerHTML = '';
+            let fueraHorarioList = state.rutinasBase.filter(r => r.tipo === 'nodiaria' && !evaluarHabitActivoFecha(r, fechaActualObj));
+
+            if (fueraHorarioList.length === 0) {
+                rootFueraHorario.innerHTML = '<div style="font-family:var(--fuente-hud); font-size:0.75rem; color:#4a5868;">Sin tareas no-diarias disponibles fuera de horario.</div>';
+            } else {
+                fueraHorarioList.forEach(r => {
+                    let btnEscudoHTML = r.escudoActivo 
+                        ? `<button class="btn-action" disabled style="color:var(--verde-triage); border-color:var(--verde-triage); opacity:0.6; cursor:not-allowed; font-size:0.7rem;">🛡️ ESCUDO YA FORJADO</button>`
+                        : `<button class="btn-action" style="color:var(--azul-ego); border-color:var(--azul-ego); font-size:0.7rem;" onclick="adelantarTareaFueraHorario('${r.id}')">🛡️ ADELANTAR (-1 C/S)</button>`;
+
+                    let div = document.createElement('div');
+                    div.className = 'linea-tarea';
+                    div.innerHTML = `
+                        <div class="tarea-row-main">
+                            <div class="tarea-info">
+                                <div class="tarea-nombre">${r.nombre}</div>
+                                <div class="tarea-desc-fx">No programada para hoy. Adelanta para forjar Escudo.</div>
+                            </div>
+                            ${btnEscudoHTML}
+                        </div>
+                    `;
+                    rootFueraHorario.appendChild(div);
+                });
+            }
+
+            // 4. Renderizar Consola de Mantenimiento Inferior con Edición Completa y Reordenamiento
+            const rootMant = document.getElementById('contenedor-mantenimiento-rutinas');
+            rootMant.innerHTML = '';
+            state.rutinasBase.forEach((r, idx) => {
+                let htmlEditInline = '';
+                if (idEditandoInline === r.id) {
+                    let isNoDiaria = r.tipo === 'nodiaria';
+                    let freqType = r.freqType || 'semanal';
+                    let isSemanal = isNoDiaria && freqType === 'semanal';
+                    let isMensual = isNoDiaria && freqType === 'mensual';
+
+                    let chkDaysHTML = '';
+                    let nombresDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+                    for (let d = 0; d <= 6; d++) {
+                        let checked = r.days && r.days.includes(d) ? 'checked' : '';
+                        chkDaysHTML += `<label><input type="checkbox" id="chk-ed-${r.id}-${d}" value="${d}" ${checked}> ${nombresDias[d]}</label>`;
+                    }
+
+                    htmlEditInline = `
+                        <div class="panel-edit-inline">
+                            <input type="text" id="ed-nom-${r.id}" value="${r.nombre}" placeholder="Nombre">
+                            <input type="text" id="ed-desc-${r.id}" value="${r.desc}" placeholder="Descripción">
+                            
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                                <select id="ed-tipo-${r.id}" onchange="toggleEdicionTipoInline('${r.id}', this.value)">
+                                    <option value="diaria" ${r.tipo==='diaria'?'selected':''}>Tipo: Diaria</option>
+                                    <option value="nodiaria" ${r.tipo==='nodiaria'?'selected':''}>Tipo: No-Diaria</option>
+                                </select>
+                                <select id="ed-freq-${r.id}" style="display:${isNoDiaria?'block':'none'};" onchange="toggleEdicionFreqInline('${r.id}', this.value)">
+                                    <option value="semanal" ${freqType==='semanal'?'selected':''}>Semanal</option>
+                                    <option value="interdiario" ${freqType==='interdiario'?'selected':''}>Interdiario</option>
+                                    <option value="mensual" ${freqType==='mensual'?'selected':''}>Mensual</option>
+                                </select>
+                            </div>
+
+                            <div class="checkbox-matrix" id="wrapper-days-inline-${r.id}" style="display:${isSemanal?'grid':'none'};">
+                                ${chkDaysHTML}
+                            </div>
+
+                            <input type="number" id="ed-param-${r.id}" value="${r.param||1}" placeholder="Día del mes" style="display:${isMensual?'block':'none'};">
+
+                            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px;">
+                                <input type="number" id="ed-en-${r.id}" value="${r.castigo.energia}" placeholder="EN">
+                                <input type="number" id="ed-est-${r.id}" value="${r.castigo.estres}" placeholder="EST">
+                                <input type="number" id="ed-mo-${r.id}" value="${r.castigo.mood}" placeholder="MO">
+                                <input type="number" id="ed-ego-${r.id}" value="${r.castigo.ego}" placeholder="EGO">
+                            </div>
+                            <button class="btn-tactic" style="color:var(--verde-triage); border-color:var(--verde-triage);" onclick="guardarEdicionInline('${r.id}')">✓ Guardar Ajustes</button>
+                        </div>
+                    `;
+                }
+
+                let div = document.createElement('div');
+                div.style.cssText = "background:#0a1017; border:1px solid #1a2536; padding:8px; margin-bottom:6px; font-family:var(--fuente-hud); font-size:0.75rem; border-radius:2px;";
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <div style="display:flex; flex-direction:column; gap:2px;">
+                                <button class="btn-tactic" style="padding:1px 4px; font-size:0.55rem;" onclick="moverRutinaManual(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.2;"' : ''}>▲</button>
+                                <button class="btn-tactic" style="padding:1px 4px; font-size:0.55rem;" onclick="moverRutinaManual(${idx}, 1)" ${idx === state.rutinasBase.length - 1 ? 'disabled style="opacity:0.2;"' : ''}>▼</button>
+                            </div>
+                            <div>
+                                <strong>${idx + 1}. ${r.nombre}</strong> <span class="badge-tag badge-${r.tipo}">${r.tipo}</span><br>
+                                <span style="color:#56697a; font-size:0.7rem;">Debuff: ${r.castigo.energia} EN | ${r.castigo.estres} EST | ${r.castigo.mood} MO | ${r.castigo.ego} EGO</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-tactic" onclick="toggleEdicionInline('${r.id}')">✏️ Editar</button>
+                            <button class="btn-tactic active-nocumplida" style="padding:2px 6px; font-size:0.6rem;" onclick="suprimirRutina('${r.id}')">Eliminar</button>
+                        </div>
+                    </div>
+                    ${htmlEditInline}
+                `;
+                rootMant.appendChild(div);
+            });
+
+            // 5. Calcular balances dinámicos para el HUD de Deltas
+            document.getElementById('d-energia').innerText = state.deltasAcumulados.energia;
+            document.getElementById('d-energia').className = state.deltasAcumulados.energia < 0 ? "delta-neg" : (state.deltasAcumulados.energia > 0 ? "delta-pos" : "");
+            document.getElementById('d-estres').innerText = (state.deltasAcumulados.estres > 0 ? "+" : "") + state.deltasAcumulados.estres;
+            document.getElementById('d-estres').className = state.deltasAcumulados.estres > 0 ? "delta-neg" : (state.deltasAcumulados.estres < 0 ? "delta-pos" : "");
+            document.getElementById('d-mood').innerText = state.deltasAcumulados.mood;
+            document.getElementById('d-mood').className = state.deltasAcumulados.mood < 0 ? "delta-neg" : (state.deltasAcumulados.mood > 0 ? "delta-pos" : "");
+            document.getElementById('d-ego').innerText = state.deltasAcumulados.ego;
+            document.getElementById('d-ego').className = state.deltasAcumulados.ego < 0 ? "delta-neg" : (state.deltasAcumulados.ego > 0 ? "delta-pos" : "");
+            document.getElementById('d-monedas').innerText = state.deltasAcumulados.monedas;
+        }
+
+        window.addEventListener('keydown', function(e) { if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); if (historialLobo.length > 0) { state = JSON.parse(historialLobo.pop()); guardarEnDisco(); renderizarTodo(); } } });
+
+        iniciarMenu();
+    </script>
+</body>
+</html>

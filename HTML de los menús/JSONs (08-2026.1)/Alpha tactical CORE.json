@@ -1,0 +1,59 @@
+{
+  "stats": {
+    "energia": 6,
+    "max_energia": 10,
+    "ego": 15,
+    "max_ego": 15,
+    "tiempo": 0,
+    "max_tiempo": 10,
+    "mood": 6,
+    "max_mood": 6,
+    "estres": 1,
+    "max_estres": 5,
+    "expAcumulada": 7,
+    "monedas": 0,
+    "eventosPositivos": 0,
+    "rompeLimites": 0,
+    "triage": "VERDE",
+    "instinto": "Calmado",
+    "dia": "Lunes",
+    "contexto": "Vacaciones de invierno"
+  },
+  "melodia": [
+    "L",
+    "D",
+    "C",
+    "C",
+    "C"
+  ],
+  "cadenaTacticaEjecutada": [
+    "C",
+    "C",
+    "C"
+  ],
+  "inventario": [],
+  "categoriasMochila": [
+    "Antiestrés",
+    "Recuperación máxima",
+    "Re:EGO",
+    "Hack de tiempo",
+    "Vigorizadores",
+    "RegulaTriaje",
+    "Hack de cooldown",
+    "Cazas de botín"
+  ],
+  "combosUsadosHoy": {
+    "C+D+L": true,
+    "C+C": true
+  },
+  "condicionesArray": [],
+  "triageOverrideDia": false,
+  "triageOverrideTurnos": 0,
+  "antiHackAmarilloTurnos": 0,
+  "antiHackRojoTurnos": 0,
+  "bonoAnimadoUsadoHoy": false,
+  "bonoFrenesiUsadoHoy": true,
+  "estadosCategoriasAbiertas": {
+    "Cazas de botín": true
+  }
+}

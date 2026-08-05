@@ -1,0 +1,328 @@
+{
+  "fechaSimuladaStr": "2026-08-04",
+  "rutinasBase": [
+    {
+      "id": "r_1784744747259",
+      "nombre": "Minodixil",
+      "desc": "+ Stomach Vacuum",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 0,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": 0,
+        "ego": -1
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784744807480",
+      "nombre": "Snack",
+      "desc": "Fruta",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 0,
+      "castigo": {
+        "energia": -1,
+        "estres": 0,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784744876399",
+      "nombre": "Limpieza total",
+      "desc": "Limpia el cuarto",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        0
+      ],
+      "param": 0,
+      "castigo": {
+        "energia": 0,
+        "estres": 1,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": true,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784744983839",
+      "nombre": "Bañarse",
+      "desc": "+ Lava zapatos",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        0,
+        2,
+        5
+      ],
+      "param": 0,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": -1,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745035246",
+      "nombre": "Barba",
+      "desc": "Rasurar y recortar",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        6
+      ],
+      "param": 0,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": 0,
+        "ego": -1
+      },
+      "escudoActivo": true,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745115422",
+      "nombre": "Vitaminas",
+      "desc": "Después de comer",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 0,
+      "castigo": {
+        "energia": -1,
+        "estres": 0,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745214918",
+      "nombre": "Ejercicio",
+      "desc": "Libera al lobo",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "param": 0,
+      "castigo": {
+        "energia": -1,
+        "estres": 1,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745256101",
+      "nombre": "Natación",
+      "desc": "Lleva abrigo",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        1,
+        4
+      ],
+      "param": 0,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": -1,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745288453",
+      "nombre": "Proteína",
+      "desc": "Después de merendar",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 0,
+      "castigo": {
+        "energia": -1,
+        "estres": 0,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745329149",
+      "nombre": "Merienda",
+      "desc": "Fruta",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 0,
+      "castigo": {
+        "energia": -1,
+        "estres": 0,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745692282",
+      "nombre": "Dermaroller",
+      "desc": "Solo si el día es PAR",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        0
+      ],
+      "param": 0,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": 0,
+        "ego": -1
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745794707",
+      "nombre": "Préstamos",
+      "desc": "Ahora toca cobrar",
+      "tipo": "nodiaria",
+      "freqType": "mensual",
+      "days": [],
+      "param": 20,
+      "castigo": {
+        "energia": 0,
+        "estres": 2,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745834331",
+      "nombre": "Inversión",
+      "desc": "Termina cuando tengas 50$",
+      "tipo": "nodiaria",
+      "freqType": "semanal",
+      "days": [
+        0
+      ],
+      "param": 20,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": 0,
+        "ego": -1
+      },
+      "escudoActivo": true,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745861292",
+      "nombre": "Diario",
+      "desc": "Pon tu mejor foto",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 20,
+      "castigo": {
+        "energia": 0,
+        "estres": 1,
+        "mood": 0,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745946899",
+      "nombre": "Aceites nocturnos",
+      "desc": "Pon música relajante",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 20,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": 0,
+        "ego": -1
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784745967362",
+      "nombre": "Ropa",
+      "desc": "Tu mejor conjunto para mañana",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 20,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": -1,
+        "ego": 0
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    },
+    {
+      "id": "r_1784746003786",
+      "nombre": "Crema hidratante",
+      "desc": "Ojos, uñas y pie",
+      "tipo": "diaria",
+      "freqType": "diaria",
+      "days": [],
+      "param": 20,
+      "castigo": {
+        "energia": 0,
+        "estres": 0,
+        "mood": 0,
+        "ego": -1
+      },
+      "escudoActivo": false,
+      "reincidenciaCount": 0
+    }
+  ],
+  "estadosPatrullaHoy": {
+    "r_1784744747259": "cumplida",
+    "r_1784744807480": "cumplida"
+  },
+  "tareasPendientes": [],
+  "deltasAcumulados": {
+    "energia": 0,
+    "estres": 0,
+    "mood": 0,
+    "ego": 0,
+    "monedas": 0
+  }
+}

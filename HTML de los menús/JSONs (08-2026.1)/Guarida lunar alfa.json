@@ -1,0 +1,13 @@
+{
+  "poolNotas": [],
+  "accionesBloqueadas": {
+    "I": false,
+    "IV": false,
+    "X": false,
+    "XI": false,
+    "VIII": false,
+    "III": false,
+    "VII": false
+  },
+  "nivelLimpieza": 1
+}

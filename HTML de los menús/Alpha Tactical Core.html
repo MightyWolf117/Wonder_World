@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Fenrir Tactical Core v3.4</title>
+    <style>
+        :root {
+            --bg-principal: #08090c;
+            --bg-tarjeta: #12141c;
+            --borde: #1f2430;
+            --azul-ego: #00d9ff;
+            --verde-triage: #00ff66;
+            --rojo-frenesi: #ff3333;
+            --amarillo-mood: #ffcc00;
+            --oro-moneda: #ffd700;
+            --texto: #e2e8f0;
+            --fuente-hud: 'Courier New', Courier, monospace;
+            --neon-glow: rgba(0, 217, 255, 0.15);
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .contenedor { max-width: 1100px; width: 100%; transition: all 0.3s ease; }
+
+        @keyframes flash-warning-hud {
+            0% { box-shadow: 0 0 0px transparent; border-color: var(--borde); }
+            50% { box-shadow: 0 0 30px var(--rojo-frenesi); border-color: var(--rojo-frenesi); }
+            100% { box-shadow: 0 0 0px transparent; border-color: var(--borde); }
+        }
+        .alerta-warning-activa { animation: flash-warning-hud 0.6s ease-in-out; }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-titulos { text-align: left; }
+        h1 { margin: 0; color: var(--azul-ego); font-size: 1.8rem; letter-spacing: 3px; font-family: var(--fuente-hud); font-weight: bold; text-shadow: 0 0 10px var(--neon-glow); }
+        .subtitulo { margin: 5px 0 0 0; color: #a0aec0; font-size: 0.9rem; font-family: var(--fuente-hud); }
+
+        .panel-sistema { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-sistema {
+            background-color: #06070a;
+            border: 1px solid var(--borde);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-family: var(--fuente-hud);
+            transition: all 0.2s ease;
+        }
+        .btn-sistema:hover { border-color: var(--azul-ego); background-color: #12141c; }
+        .btn-avance { background-color: #0c1a16; border-color: #14352b; color: #4ade80; }
+        .btn-avance:hover { background-color: #112921; border-color: var(--verde-triage); }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tarjeta-stat {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            transition: all 0.4s ease;
+        }
+
+        .stat-titulo { font-size: 0.7rem; color: #626e7f; font-family: var(--fuente-hud); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-valor { font-size: 1.2rem; font-weight: bold; font-family: var(--fuente-hud); }
+        
+        .progreso-bar { background-color: #0a0b0e; height: 6px; margin-top: 8px; overflow: hidden; border: 1px solid #1f2430; }
+        .progreso-llenado { height: 100%; width: 0%; transition: width 0.3s ease; }
+
+        .terminal-log {
+            background-color: #050609;
+            border: 1px solid var(--borde);
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-family: var(--fuente-hud);
+            font-size: 0.85rem;
+            color: #a0aec0;
+            margin-bottom: 20px;
+            max-height: 80px;
+            overflow-y: auto;
+            border-left: 3px solid var(--azul-ego);
+        }
+
+        .seccion-paneles { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .panel { background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 4px; padding: 20px; transition: all 0.4s ease; }
+        h2 { font-size: 1.05rem; margin-top: 0; border-left: 3px solid var(--azul-ego); padding-left: 8px; color: #fff; font-family: var(--fuente-hud); letter-spacing: 1px; }
+
+        .btn {
+            background-color: #0b0c10;
+            color: var(--texto);
+            border: 1px solid var(--borde);
+            padding: 10px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            transition: all 0.15s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--fuente-hud);
+            font-size: 0.85rem;
+        }
+        .btn:hover { background-color: #161922; border-color: var(--azul-ego); }
+        .btn-accion { border-left: 3px solid var(--verde-triage); }
+        .btn-accion:hover { border-left: 3px solid var(--azul-ego); }
+        .btn-costo { font-size: 0.7rem; color: #a0aec0; background: #12141c; padding: 2px 6px; border-radius: 2px; border: 1px solid var(--borde); }
+
+        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .flex-row .btn { margin-bottom: 0; text-align: center; justify-content: center; padding: 8px; }
+
+        .melodia-display { background-color: #040507; border: 1px dashed var(--borde); padding: 12px; border-radius: 4px; font-family: var(--fuente-hud); font-size: 1.1rem; letter-spacing: 2px; min-height: 25px; color: var(--verde-triage); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .nota-tag { background: #12141c; border: 1px solid var(--borde); padding: 2px 8px; border-radius: 2px; font-size: 0.85rem; color: #fff; font-weight: bold; }
+
+        details.cat-group { background: #06070a; border: 1px solid var(--borde); margin-bottom: 6px; border-radius: 2px; }
+        summary.cat-summary { padding: 6px 10px; font-family: var(--fuente-hud); font-size: 0.75rem; color: var(--azul-ego); font-weight: bold; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; background: #08090e; }
+        summary.cat-summary:hover { background: #101420; }
+        .cat-content { padding: 4px; }
+
+        .item-linea { display: flex; flex-direction: column; padding: 8px; border-bottom: 1px solid var(--borde); font-family: var(--fuente-hud); background: #08090e; margin-bottom: 4px; border-radius: 2px; }
+        .item-linea:last-child { border-bottom: none; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .item-nombre { font-weight: bold; color: #fff; font-size: 0.85rem; }
+        .item-desc { font-size: 0.72rem; color: #718096; margin-top: 2px; }
+        .item-controles { display: flex; gap: 4px; margin-top: 6px; }
+        .btn-use-item { background-color: #0c1a16; border: 1px solid #14352b; color: #4ade80; cursor: pointer; padding: 2px 6px; border-radius: 2px; font-size: 0.7rem; font-weight: bold; }
+        .btn-accion-item { background: transparent; border: 1px solid var(--borde); color: #718096; cursor: pointer; padding: 2px 5px; border-radius: 2px; font-size: 0.65rem; }
+        .btn-accion-item:hover { color: #fff; border-color: var(--azul-ego); }
+
+        .form-crear-item { background: #06070a; border: 1px solid var(--borde); padding: 12px; border-radius: 4px; margin-top: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+        .form-grid input, .form-grid button, .form-grid select { background: #12141c; border: 1px solid var(--borde); color: #fff; padding: 5px; font-family: var(--fuente-hud); font-size: 0.75rem; border-radius: 2px; }
+
+        .ventana-desplegable { background-color: #0b0c12; border: 1px solid var(--borde); border-radius: 4px; padding: 15px; margin-bottom: 15px; width: 100%; box-sizing: border-box; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .panel-edicion { background-color: #050609; border: 1px dashed #4a5568; border-radius: 4px; padding: 20px; width: 100%; box-sizing: border-box; margin-top: 15px;}
+        .toggle-edicion { background-color: #12141c; border: 1px solid var(--borde); color: #a0aec0; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; text-align: center; margin-bottom: 15px; font-family: var(--fuente-hud); font-size: 0.85rem; transition: all 0.2s; }
+        .toggle-edicion:hover { color: #fff; border-color: var(--azul-ego); }
+        
+        .grid-edicion { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .grupo-input { display: flex; flex-direction: column; gap: 4px; }
+        .grupo-input label { font-size: 0.7rem; color: #718096; font-family: var(--fuente-hud); text-transform: uppercase; }
+        .grupo-input input, .grupo-input select { background-color: #12141c; border: 1px solid var(--borde); color: #fff; padding: 6px; border-radius: 4px; font-size: 0.85rem; font-family: var(--fuente-hud); }
+
+        .combo-alert-tag { background: #1a0f0f; border: 1px solid var(--rojo-frenesi); color: #ff6666; padding: 4px 8px; border-radius: 2px; font-size: 0.75rem; margin: 4px; display: inline-block; font-family: var(--fuente-hud); }
+        .condicion-tag-hud { display: inline-block; background: #161922; border: 1px solid var(--borde); padding: 5px 10px; border-radius: 2px; margin-right: 8px; margin-bottom: 5px; font-family: var(--fuente-hud); font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor" id="hud-main-container">
+        <header>
+            <div class="header-titulos">
+                <h1>ALPHA FENRIR TACTICAL CORE</h1>
+                <div class="subtitulo" id="display-contexto-dia">Lunes | Operaciones Activas v3.4</div>
+            </div>
+            <div class="panel-sistema">
+                <button class="btn-sistema" onclick="exportarDataJSON()" style="color:var(--azul-ego); border-color:var(--azul-ego);">📥 Exportar</button>
+                <button class="btn-sistema" onclick="document.getElementById('input-json-import').click()">📤 Importar</button>
+                <input type="file" id="input-json-import" accept=".json" style="display:none;" onchange="importarDataJSON(this)">
+                <button class="btn-sistema" onclick="deshacer()">↶ Deshacer</button>
+                <button class="btn-sistema" onclick="resetDay()" style="color:var(--amarillo-mood);">↺ Reset Day</button>
+                <button class="btn-sistema btn-avance" onclick="pasarDia(false)">⏳ Pasar el Día</button>
+                <button class="btn-sistema btn-avance" onclick="pasarDia(true)" style="color: #ffd700;">💤 Descanso Total</button>
+            </div>
+        </header>
+
+        <div class="grid-stats">
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">Energía</div>
+                <div class="stat-valor" id="txt-energia" style="font-size:1rem; line-height: 1.2;">8/8<br><span style="font-size:0.7rem; color:#a0aec0;">Alfa absoluto</span></div>
+                <div class="progreso-bar"><div class="progreso-llenado" id="bar-energia" style="background-color: var(--verde-triage);"></div></div>
+            </div>
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">Puntos EGO</div>
+                <div class="stat-valor" id="txt-ego">7/15</div>
+                <div class="progreso-bar"><div class="progreso-llenado" id="bar-ego" style="background-color: var(--azul-ego);"></div></div>
+            </div>
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">Tiempo Remanente</div>
+                <div class="stat-valor" id="txt-tiempo">20 Ticks</div>
+                <div class="progreso-bar"><div class="progreso-llenado" id="bar-tiempo" style="background-color: #718096;"></div></div>
+            </div>
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">Mood / Estrés</div>
+                <div class="stat-valor" id="txt-mood-estres">6 / 0</div>
+                <div class="progreso-bar"><div class="progreso-llenado" id="bar-mood" style="background-color: var(--amarillo-mood);"></div></div>
+            </div>
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">EXP Acumulada</div>
+                <div class="stat-valor" id="txt-exp-val" style="color:var(--verde-triage);">0.0 EXP</div>
+                <div class="stat-titulo" style="font-size:0.55rem; margin-top:2px;">(Transferir a Zona de Caza)</div>
+            </div>
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">Monedas / Eventos</div>
+                <div class="stat-valor" id="txt-contadores-hud" style="font-size: 0.95rem; color: var(--oro-moneda); margin-top: 5px;">M:0 | E:0 | R:0</div>
+            </div>
+            <div class="tarjeta-stat">
+                <div class="stat-titulo">Triage / Instinto</div>
+                <div class="stat-valor" id="txt-triage-instinto" style="font-size: 1rem; margin-top: 2px; color: var(--verde-triage);">VERDE</div>
+                <div id="txt-sub-instinto" style="font-size:0.75rem; color:#a0aec0; font-family: var(--fuente-hud);">Juguetón</div>
+            </div>
+        </div>
+
+        <div class="tarjeta-stat" style="margin-bottom: 15px; text-align: left; padding: 10px 15px;">
+            <div class="stat-titulo" style="margin-bottom: 6px;">Cargas Biológicas y Anomalías Activas:</div>
+            <div id="contenedor-condiciones-hud"></div>
+        </div>
+
+        <div class="terminal-log" id="consola-log">> Sistema v3.4 en línea. Esperando comandos...</div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; width: 100%;">
+            <button class="btn" onclick="toggleVentana('panel-ventana-reporte')" style="margin-bottom:0; justify-content:center; background:#1b2234; border-color:#2d3a58;">
+                <span>📋 COMPILAR SNAPSHOT PARA GEMINI</span>
+            </button>
+            <button class="btn" onclick="toggleVentana('panel-ventana-warnings')" style="margin-bottom:0; justify-content:center; background:#241919; border-color:#422d2d; color:#ff9999;">
+                <span>⚠️ PANEL DE ALERTAS DE COMBO</span>
+            </button>
+        </div>
+
+        <div class="ventana-desplegable" id="panel-ventana-reporte" style="display:none;">
+            <h2>Estructura de Bitácora Operativa</h2>
+            <textarea id="textarea-snapshot" readonly style="width:100%; height:180px; background:#06070a; border:1px solid var(--borde); color:var(--verde-triage); font-family:var(--fuente-hud); font-size:0.8rem; padding:10px; box-sizing:border-box; resize:none;"></textarea>
+        </div>
+
+        <div class="ventana-desplegable" id="panel-ventana-warnings" style="display:none;">
+            <h2>Registro de Frecuencias Duplicadas (Warnings Activos)</h2>
+            <div id="contenedor-warnings-lista"></div>
+        </div>
+
+        <div class="seccion-paneles">
+            <div class="panel">
+                <h2>Operaciones de Campo</h2>
+                <button class="btn btn-accion" onclick="ejecutarAccion('C')"><span>Caza (C)</span> <span class="btn-costo">-3 Ticks | +1 Estres | -1 EN</span></button>
+                <button class="btn btn-accion" onclick="ejecutarAccion('S')"><span>Salto entre mundos (S)</span> <span class="btn-costo">-3 Ticks | -1 Estres | +1 Mood | +1 EN</span></button>
+                <button class="btn btn-accion" onclick="ejecutarAccion('O')"><span>Orden y limpieza (O)</span> <span class="btn-costo">-3 Ticks | -1 Estres | +1 EN</span></button>
+                <button class="btn btn-accion" onclick="ejecutarAccion('L')"><span>Liderazgo (L)</span> <span class="btn-costo">-2 Ticks | +1 EN</span></button>
+                <button class="btn btn-accion" onclick="ejecutarAccion('Ds')"><span>Desconexión (Ds)</span> <span class="btn-costo">-2 Ticks | +1 EN</span></button>
+                <button class="btn btn-accion" onclick="ejecutarAccion('D')"><span>Descanso y recreación (D)</span> <span class="btn-costo">-1 Tick | +1 EN</span></button>
+                <button class="btn btn-accion" id="btn-enfermeria" onclick="ejecutarAccion('E')"><span>Ir a la enfermería (E)</span> <span class="btn-costo">-2 Ticks | -1 Estres | +1 EN</span></button>
+            </div>
+
+            <div class="panel">
+                <h2>Módulo de Habilidades</h2>
+                <button class="btn" onclick="ejecutarHabilidad('overclocked')"><span>Overclocked</span> <span class="btn-costo">-2 EN / +1 EGO</span></button>
+                <button class="btn" onclick="ejecutarHabilidad('aullido')"><span>Aullido de Enfoque</span> <span class="btn-costo">-2 EGO / Triage Max</span></button>
+                <button class="btn" onclick="ejecutarHabilidad('piel')"><span>Piel de Plomo</span> <span class="btn-costo">-2 EGO / Mitigar Neg</span></button>
+                <button class="btn" onclick="ejecutarHabilidad('rastro')"><span>Rastro de Sangre</span> <span class="btn-costo">-1 EGO / Frenesí</span></button>
+                <button class="btn" onclick="ejecutarHabilidad('melodia-inv')"><span>Melodía Infernal</span> <span class="btn-costo">-0 EGO / Reversa</span></button>
+                
+                <h2 style="margin-top: 18px;">Inyección Manual (Guardián)</h2>
+                <div class="flex-row">
+                    <button class="btn" onclick="inyectarNota('L')">L</button>
+                    <button class="btn" onclick="inyectarNota('D')">D</button>
+                    <button class="btn" onclick="inyectarNota('C')">C</button>
+                    <button class="btn" onclick="inyectarNota('O')">O</button>
+                </div>
+                <div class="flex-row">
+                    <button class="btn" onclick="inyectarNota('S')">S</button>
+                    <button class="btn" onclick="inyectarNota('Ds')">Ds</button>
+                    <button class="btn" onclick="inyectarNota('E')">E</button>
+                    <button class="btn" style="color: var(--rojo-frenesi);" onclick="limpiarMelodia()">Reset</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Matriz de Línea Rítmica</h2>
+                <div class="melodia-display" id="display-melodia">Ninguna</div>
+
+                <div style="font-family:var(--fuente-hud); font-size:0.75rem; color:#718096; margin-bottom:10px;">
+                    Cadena Táctica Ejecutada: <span id="display-cadena-tactica" style="color:var(--azul-ego); font-weight:bold;">Ninguna</span>
+                </div>
+
+                <h2>Mochila Categorizada (<span id="txt-inv-count">0</span>/15)</h2>
+                
+                <details style="margin-bottom:10px;">
+                    <summary style="font-size:0.75rem; color:var(--azul-ego); cursor:pointer;">📁 GESTIONAR CATEGORÍAS DE LA MOCHILA</summary>
+                    <div style="padding:8px; background:#06070a; border:1px solid var(--borde); margin-top:4px;">
+                        <div style="display:flex; gap:4px; margin-bottom:6px;">
+                            <input type="text" id="new-cat-nombre" placeholder="Nueva Categoría" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:4px; font-family:var(--fuente-hud); font-size:0.75rem; flex:1;">
+                            <button onclick="crearCategoria()" style="background:var(--azul-ego); border:none; color:#000; font-weight:bold; padding:4px 8px; font-family:var(--fuente-hud); cursor:pointer;">+ Añadir</button>
+                        </div>
+                        <div id="lista-categorias-ui" style="display:flex; gap:4px; flex-wrap:wrap;"></div>
+                    </div>
+                </details>
+
+                <div id="lista-inventario" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--borde); padding: 5px; margin-bottom: 10px; background:#030406;"></div>
+
+                <button class="btn" onclick="toggleFormCrearItem()" style="font-size:0.8rem; margin-bottom:5px; justify-content:center; background:#161822;">
+                    <span>➕ DESPLEGAR FORJA DE SUMINISTROS</span>
+                </button>
+                
+                <div class="form-crear-item" id="panel-forja-objeto" style="display: none;">
+                    <input type="text" id="add-item-nombre" placeholder="Nombre del Objeto" style="width:100%;">
+                    <input type="text" id="add-item-desc" placeholder="Descripción del efecto" style="width:100%; margin-top:4px;">
+                    <select id="add-item-cat" style="width:100%; margin-top:4px; background:#12141c; border:1px solid var(--borde); color:#fff; padding:4px; font-family:var(--fuente-hud); font-size:0.75rem;">
+                        <option value="No Categorizado">Categoría: No Categorizado</option>
+                    </select>
+                    <select id="add-item-triagehack" style="width:100%; margin-top:4px; background:#12141c; border:1px solid var(--borde); color:#fff; padding:4px; font-family:var(--fuente-hud); font-size:0.75rem;">
+                        <option value="none">Efecto Triage: Ninguno</option>
+                        <option value="turn1">Hack Triage: Verde (+1 Turno)</option>
+                        <option value="turn2">Hack Triage: Verde (+2 Turnos)</option>
+                        <option value="dia">Hack Triage: Verde (Día Completo)</option>
+                        <option value="anti_amarillo_1">Antihack: Amarillo (+1 Turno)</option>
+                        <option value="anti_amarillo_2">Antihack: Amarillo (+2 Turnos)</option>
+                        <option value="anti_rojo_1">Antihack: Rojo (+1 Turno)</option>
+                        <option value="anti_rojo_2">Antihack: Rojo (+2 Turnos)</option>
+                    </select>
+                    <div class="form-grid">
+                        <input type="number" id="add-item-ticks" placeholder="Δ Ticks">
+                        <input type="number" id="add-item-en" placeholder="Δ Energía">
+                        <input type="number" id="add-item-ego" placeholder="Δ EGO">
+                        <input type="number" id="add-item-mood" placeholder="Δ Mood">
+                        <input type="number" id="add-item-estres" placeholder="Δ Estrés">
+                        <button onclick="crearSuministroManual()" style="background:var(--azul-ego); color:#000; font-weight:bold;">Forjar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toggle-edicion" onclick="togglePanelEdicion()">🛠️ DESPLEGAR / OCULTAR CONFIGURACIÓN DIRECTA DE MATRIZ</div>
+        <div class="panel-edicion" id="panel-edicion-manual" style="display: none;">
+            <h2>Modificación Directa de la Matriz</h2>
+            <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn-sistema" onclick="manualRenovarCombos()">🔄 Renovar Combos</button>
+                <button class="btn-sistema" onclick="manualReiniciarInstintos()" style="color:var(--verde-triage); border-color:#1e3c2f;">🐾 Reiniciar Instintos</button>
+                <button class="btn-sistema" onclick="manualResetContadores()">🧹 Limpiar Eventos / RL</button>
+                <button class="btn-sistema" onclick="toggleVentana('panel-ventana-codice')" style="color:#52ffcc; border-color:#234e44;">👁️ Ver Códice de Combos</button>
+            </div>
+
+            <div class="ventana-desplegable" id="panel-ventana-codice" style="display:none; background:#06070a; margin-bottom:20px;">
+                <h3 style="margin-top:0; color:var(--azul-ego); font-family:var(--fuente-hud);">Códice del Batallón (Sinergias Registradas)</h3>
+                <div id="lista-codice-combos-ui" style="font-family:var(--fuente-hud); font-size:0.8rem; display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;"></div>
+            </div>
+
+            <div class="form-crear-item" style="margin-bottom:20px; background:#08090e; border:1px dashed var(--borde);">
+                <span class="stat-titulo" style="color:#fff;">+ Forjar Carga Clínica / Enfermedad</span>
+                <div style="display:flex; gap:10px; margin-top:5px;">
+                    <input type="text" id="add-cond-nombre" placeholder="Nombre (Ej: Dolor de dedo)" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:5px; font-family:var(--fuente-hud); font-size:0.8rem; flex:2;">
+                    <select id="add-cond-tipo" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:5px; font-family:var(--fuente-hud); font-size:0.8rem; flex:1;">
+                        <option value="normal">Normal (Curable)</option>
+                        <option value="incurable">Incurable / Positiva</option>
+                    </select>
+                    <input type="number" id="add-cond-hp" placeholder="HP Curación" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:5px; font-family:var(--fuente-hud); font-size:0.8rem; width:80px;">
+                    <button onclick="crearCondicionManual()" style="background:var(--verde-triage); border:none; color:#000; font-weight:bold; font-family:var(--fuente-hud); padding:5px 15px; border-radius:2px; cursor:pointer;">Inyectar</button>
+                </div>
+                <input type="text" id="add-cond-desc" placeholder="Descripción del efecto restrictivo" style="width:100%; background:#12141c; border:1px solid var(--borde); color:#fff; padding:5px; margin-top:5px; font-family:var(--fuente-hud); font-size:0.75rem; box-sizing:border-box;">
+            </div>
+
+            <div class="grid-edicion">
+                <div class="grupo-input"><label>Fase de Día</label><select id="input-dia" onchange="guardarCambioManual('dia', this.value)"><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option><option value="Domingo">Domingo</option></select></div>
+                <div class="grupo-input"><label>Notas de Contexto</label><input type="text" id="input-contexto" oninput="guardarCambioManual('contexto', this.value)"></div>
+                <div class="grupo-input"><label>Energía Actual</label><input type="number" id="input-energia" oninput="guardarCambioManual('energia', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Energía Máxima</label><input type="number" id="input-max-energia" oninput="guardarCambioManual('max_energia', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>EGO Actual</label><input type="number" id="input-ego" oninput="guardarCambioManual('ego', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>EGO Máximo</label><input type="number" id="input-max-ego" oninput="guardarCambioManual('max_ego', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Tiempo Remanente</label><input type="number" id="input-tiempo" oninput="guardarCambioManual('tiempo', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Tiempo Máximo</label><input type="number" id="input-max-tiempo" oninput="guardarCambioManual('max_tiempo', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Mood</label><input type="number" id="input-mood" oninput="guardarCambioManual('mood', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Estrés</label><input type="number" id="input-estres" oninput="guardarCambioManual('estres', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>EXP Acumulada</label><input type="number" step="0.5" id="input-exp" oninput="guardarCambioManual('expAcumulada', parseFloat(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Búfer Monedas</label><input type="number" id="input-monedas" oninput="guardarCambioManual('monedas', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Eventos Asegurados</label><input type="number" id="input-eventos" oninput="guardarCambioManual('eventosPositivos', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Rompe Límites</label><input type="number" id="input-rompe" oninput="guardarCambioManual('rompeLimites', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Firma de Instinto</label><input type="text" id="input-instinto" oninput="guardarCambioManual('instinto', this.value)"></div>
+                <div class="grupo-input"><label>Hack Triage Verde (Día)</label><select id="input-triage-dia" onchange="guardarOverrideTriageDia(this.value)"><option value="false">Desactivado (Ecuación Normal)</option><option value="true">ACTIVADO (Verde Todo el Día)</option></select></div>
+                <div class="grupo-input"><label>Hack Cargas Verde (Turnos)</label><input type="number" id="input-triage-turnos" min="0" oninput="guardarOverrideTriageTurnos(parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Antihack Amarillo (Turnos)</label><input type="number" id="input-antihack-ama" min="0" oninput="guardarAntiHackTurnos('amarillo', parseInt(this.value) || 0)"></div>
+                <div class="grupo-input"><label>Antihack Rojo (Turnos)</label><input type="number" id="input-antihack-rojo" min="0" oninput="guardarAntiHackTurnos('rojo', parseInt(this.value) || 0)"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DIAS_SEMANA = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+        const MATRIZ_COMBOS = {
+            "S+S": { nombre: "Moneda", desc: "Otorga +1 Moneda de cambio.", fx: () => { stats.monedas++; registrarLog("[COMBO]: S+S -> +1 Moneda añadida."); } },
+            "C+C": { nombre: "Frenesí", desc: "Activa Instinto Frenesí. Si ya está activo, +1 Evento Positivo Asegurado.", fx: () => { if(stats.instinto.toLowerCase() === "frenesí" || stats.instinto.toLowerCase() === "frenesi") { stats.eventosPositivos++; registrarLog("[SINERGIA EXCEDENTE]: Frenesí ya activo. +1 Evento Positivo."); } else { stats.instinto = "Frenesí"; registrarLog("[COMBO]: C+C -> Instinto alterado a FRENESÍ."); } } },
+            "C+O": { nombre: "Tick Extra", desc: "Fractura temporal: Otorga +1 Tick.", fx: () => { stats.tiempo++; registrarLog("[COMBO]: O+C -> +1 Tick obtenido."); } },
+            "L+O": { nombre: "Blindaje Estrés", desc: "Reduce el Estrés en 1. Si está en 0, +1 Evento Positivo Asegurado.", fx: () => { if(stats.estres === 0) { stats.eventosPositivos++; registrarLog("[SINERGIA ESTRÉS]: Reducción en 0. +1 Evento Positivo."); } else { stats.estres = Math.max(0, stats.estres - 1); registrarLog("[COMBO]: O+L -> -1 Estrés."); } } },
+            "L+S": { nombre: "Animado", desc: "Activa Instinto Animado. Si ya está activo, +1 Evento Positivo Asegurado.", fx: () => { if(stats.instinto.toLowerCase() === "animado") { stats.eventosPositivos++; registrarLog("[SINERGIA EXCEDENTE]: Animado ya activo. +1 Evento Positivo."); } else { stats.instinto = "Animado"; registrarLog("[COMBO]: S+L -> Instinto alterado a ANIMADO."); } } },
+            "D+Ds": { nombre: "Fuga Estrés", desc: "Reduce el Estrés en 1. Si está en 0, +1 Evento Positivo Asegurado.", fx: () => { if(stats.estres === 0) { stats.eventosPositivos++; registrarLog("[SINERGIA ESTRÉS]: Reducción en 0. +1 Evento Positivo."); } else { stats.estres = Math.max(0, stats.estres - 1); registrarLog("[COMBO]: Ds+D -> -1 Estrés."); } } },
+            "O+S": { nombre: "Tick Extra", desc: "Extensión de tareas: Otorga +1 Tick.", fx: () => { stats.tiempo++; registrarLog("[COMBO]: O+S -> +1 Tick obtenido."); } },
+            "C+D+L": { nombre: "EXP Extra", desc: "Otorga +1 de EXP Extra.", fx: () => { sumarseEXP(1); registrarLog("[COMBO]: L+D+C -> Consolidación: +1 EXP Extra."); } },
+            "Ds+Ds+L": { nombre: "Rompe Límites", desc: "Acumula +1 Rompe Límites para contingencias.", fx: () => { stats.rompeLimites++; registrarLog("[COMBO]: L+Ds+Ds -> +1 Rompe Límites acumulado."); } },
+            "D+E+E": { nombre: "Purgado Quirúrgico", desc: "Aplica -1 HP de curación a todas las condiciones normales.", fx: () => { aplicarCuracionBloqueCondiciones(); registrarLog("[COMBO E+D+E]: Pulso quirúrgico aplicado. -1 HP a condiciones normales."); } }
+        };
+
+        const INVENTARIO_PRECONFIGURADO = [
+            { id: "i1", nombre: "Las Ruinas", desc: "Consume 10 Ticks para llevar el EGO al límite absoluto.", categoria: "Modificadores de Tiempo", deltas: { tiempo: -10, ego: 15, energia: 0, mood: 0, estres: 0 } },
+            { id: "i2", nombre: "El fin de la infinidad", desc: "Destruye un objeto para maxear el EGO instantáneamente.", categoria: "Consumibles de Emergencia", deltas: { tiempo: 0, ego: 15, energia: 0, mood: 0, estres: 0 } },
+            { id: "i3", nombre: "Sentimientos solidificados", desc: "Forzado Hack: Mantiene el Triage en VERDE por todo el día.", categoria: "Consumibles de Emergencia", triageHack: "dia", deltas: { tiempo: 0, ego: 0, energia: 0, mood: 0, estres: 0 } }
+        ];
+
+        let stats = {};
+        let melodia = [];
+        let cadenaTacticaEjecutada = [];
+        let inventario = [];
+        let categoriasMochila = ["Modificadores de Tiempo", "Consumibles de Emergencia", "Boosters de Gimnasio"];
+        let historial = [];
+        let combosUsadosHoy = {};
+        let condicionesArray = [];
+
+        let bonoAnimadoUsadoHoy = false;
+        let bonoFrenesiUsadoHoy = false;
+        let bonoSaltoAnimadoUsadoHoy = false;
+        let bonoSaltoJuguetonUsadoHoy = false;
+
+        let idEditandoObjeto = null;
+
+        // MODIFICADORES HACK Y ANTIHACK DE TRIAGE
+        let triageOverrideDia = false;
+        let triageOverrideTurnos = 0;
+        let antiHackAmarilloTurnos = 0;
+        let antiHackRojoTurnos = 0;
+
+        // MEMORIA DE CATEGORÍAS ABIERTAS (ACOPLAMIENTO POR DEFECTO)
+        let estadosCategoriasAbiertas = {};
+
+        function cargarSistema() {
+            const guardadoPrincipal = localStorage.getItem('alpha_fenrir_core_v3');
+            if (guardadoPrincipal) {
+                const datos = JSON.parse(guardadoPrincipal);
+                stats = datos.stats;
+                melodia = datos.melodia || [];
+                cadenaTacticaEjecutada = datos.cadenaTacticaEjecutada || [];
+                inventario = datos.inventario || [];
+                categoriasMochila = datos.categoriasMochila || ["Modificadores de Tiempo", "Consumibles de Emergencia", "Boosters de Gimnasio"];
+                combosUsadosHoy = datos.combosUsadosHoy || {};
+                condicionesArray = datos.condicionesArray || [];
+                bonoAnimadoUsadoHoy = datos.bonoAnimadoUsadoHoy || false;
+                bonoFrenesiUsadoHoy = datos.bonoFrenesiUsadoHoy || false;
+                bonoSaltoAnimadoUsadoHoy = datos.bonoSaltoAnimadoUsadoHoy || false;
+                bonoSaltoJuguetonUsadoHoy = datos.bonoSaltoJuguetonUsadoHoy || false;
+                triageOverrideDia = datos.triageOverrideDia || false;
+                triageOverrideTurnos = datos.triageOverrideTurnos || 0;
+                antiHackAmarilloTurnos = datos.antiHackAmarilloTurnos || 0;
+                antiHackRojoTurnos = datos.antiHackRojoTurnos || 0;
+                estadosCategoriasAbiertas = datos.estadosCategoriasAbiertas || {};
+            } else {
+                stats = {
+                    energia: 8, max_energia: 8, ego: 7, max_ego: 15, tiempo: 20, max_tiempo: 20,
+                    mood: 6, max_mood: 6, estres: 0, max_estres: 5, expAcumulada: 0.0, monedas: 0, eventosPositivos: 0, rompeLimites: 0,
+                    triage: "VERDE", instinto: "Juguetón", dia: "Lunes", contexto: "Operaciones Activas v3.4"
+                };
+                melodia = []; cadenaTacticaEjecutada = [];
+                inventario = JSON.parse(JSON.stringify(INVENTARIO_PRECONFIGURADO));
+                guardarCheckpointInicial();
+                guardarEnDisco();
+            }
+            construirUICombosCodice();
+            actualizarUI();
+        }
+
+        function guardarCheckpointInicial() {
+            localStorage.setItem('alpha_fenrir_core_checkpoint_v3', JSON.stringify({
+                stats: JSON.parse(JSON.stringify(stats)),
+                melodia: [...melodia],
+                cadenaTacticaEjecutada: [...cadenaTacticaEjecutada],
+                inventario: JSON.parse(JSON.stringify(inventario)),
+                categoriasMochila: [...categoriasMochila],
+                combosUsadosHoy: JSON.parse(JSON.stringify(combosUsadosHoy)),
+                condicionesArray: JSON.parse(JSON.stringify(condicionesArray)),
+                bonoAnimadoUsadoHoy, bonoFrenesiUsadoHoy, bonoSaltoAnimadoUsadoHoy, bonoSaltoJuguetonUsadoHoy,
+                triageOverrideDia, triageOverrideTurnos, antiHackAmarilloTurnos, antiHackRojoTurnos,
+                estadosCategoriasAbiertas: JSON.parse(JSON.stringify(estadosCategoriasAbiertas))
+            }));
+        }
+
+        function registrarPasoHistorial() {
+            if (historial.length >= 30) historial.shift();
+            historial.push(JSON.stringify({ stats, melodia, cadenaTacticaEjecutada, inventario, categoriasMochila, combosUsadosHoy, condicionesArray, bonoAnimadoUsadoHoy, bonoFrenesiUsadoHoy, bonoSaltoAnimadoUsadoHoy, bonoSaltoJuguetonUsadoHoy, triageOverrideDia, triageOverrideTurnos, antiHackAmarilloTurnos, antiHackRojoTurnos, estadosCategoriasAbiertas }));
+        }
+
+        function guardarEnDisco() {
+            localStorage.setItem('alpha_fenrir_core_v3', JSON.stringify({ stats, melodia, cadenaTacticaEjecutada, inventario, categoriasMochila, combosUsadosHoy, condicionesArray, bonoAnimadoUsadoHoy, bonoFrenesiUsadoHoy, bonoSaltoAnimadoUsadoHoy, bonoSaltoJuguetonUsadoHoy, triageOverrideDia, triageOverrideTurnos, antiHackAmarilloTurnos, antiHackRojoTurnos, estadosCategoriasAbiertas }));
+        }
+
+        function exportarDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ stats, melodia, cadenaTacticaEjecutada, inventario, categoriasMochila, combosUsadosHoy, condicionesArray, triageOverrideDia, triageOverrideTurnos, antiHackAmarilloTurnos, antiHackRojoTurnos, bonoAnimadoUsadoHoy, bonoFrenesiUsadoHoy, estadosCategoriasAbiertas }, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `TacticalCore_Backup_${Date.now()}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importarDataJSON(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let parsed = JSON.parse(e.target.result);
+                        if (parsed.stats) {
+                            registrarPasoHistorial();
+                            stats = parsed.stats;
+                            melodia = parsed.melodia || [];
+                            cadenaTacticaEjecutada = parsed.cadenaTacticaEjecutada || [];
+                            inventario = parsed.inventario || [];
+                            categoriasMochila = parsed.categoriasMochila || ["Modificadores de Tiempo", "Consumibles de Emergencia", "Boosters de Gimnasio"];
+                            combosUsadosHoy = parsed.combosUsadosHoy || {};
+                            condicionesArray = parsed.condicionesArray || [];
+                            triageOverrideDia = parsed.triageOverrideDia || false;
+                            triageOverrideTurnos = parsed.triageOverrideTurnos || 0;
+                            antiHackAmarilloTurnos = parsed.antiHackAmarilloTurnos || 0;
+                            antiHackRojoTurnos = parsed.antiHackRojoTurnos || 0;
+                            bonoAnimadoUsadoHoy = parsed.bonoAnimadoUsadoHoy || false;
+                            bonoFrenesiUsadoHoy = parsed.bonoFrenesiUsadoHoy || false;
+                            estadosCategoriasAbiertas = parsed.estadosCategoriasAbiertas || {};
+                            guardarEnDisco();
+                            actualizarUI();
+                            alert("¡Data del Core restaurada con éxito!");
+                        }
+                    } catch(err) { alert("Archivo JSON no válido."); }
+                };
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        function registrarLog(texto) {
+            const consola = document.getElementById('consola-log');
+            consola.innerText += "\n> " + texto; consola.scrollTop = consola.scrollHeight;
+        }
+
+        function deshacer() {
+            if (historial.length > 0) {
+                const est = JSON.parse(historial.pop());
+                stats = est.stats; melodia = est.melodia; cadenaTacticaEjecutada = est.cadenaTacticaEjecutada;
+                inventario = est.inventario; categoriasMochila = est.categoriasMochila;
+                combosUsadosHoy = est.combosUsadosHoy || {}; condicionesArray = est.condicionesArray || [];
+                bonoAnimadoUsadoHoy = est.bonoAnimadoUsadoHoy;
+                bonoFrenesiUsadoHoy = est.bonoFrenesiUsadoHoy;
+                bonoSaltoAnimadoUsadoHoy = est.bonoSaltoAnimadoUsadoHoy;
+                bonoSaltoJuguetonUsadoHoy = est.bonoSaltoJuguetonUsadoHoy;
+                triageOverrideDia = est.triageOverrideDia;
+                triageOverrideTurnos = est.triageOverrideTurnos;
+                antiHackAmarilloTurnos = est.antiHackAmarilloTurnos;
+                antiHackRojoTurnos = est.antiHackRojoTurnos;
+                estadosCategoriasAbiertas = est.estadosCategoriasAbiertas || {};
+                guardarEnDisco(); actualizarUI(); registrarLog("Línea temporal revertida un paso.");
+            }
+        }
+
+        function getFirmaEnergia(val) {
+            const descs = ["Agotado", "Crítica", "Distraído", "Normal", "Vigoroso", "Excelente", "Magistral", "Hombre lobo", "Alfa absoluto"];
+            return descs[val] || "Indefinida";
+        }
+
+        function toggleVentana(id) {
+            const v = document.getElementById(id);
+            v.style.display = v.style.display === 'none' ? 'block' : 'none';
+            if (id === 'panel-ventana-reporte' && v.style.display === 'block') compilarSnapshotText();
+        }
+
+        function compilarSnapshotText() {
+            let objText = inventario.map(item => `- [${item.categoria || 'No Categorizado'}] ${item.nombre} - (${item.desc})`).join('\n');
+            let condText = condicionesArray.map(c => `- ${c.nombre}: ${c.desc} (${c.hpActual}/${c.hpMax} HP)${c.tipo==='incurable' ? ' [INCURABLE]':''}`).join('\n') || '- Ninguna';
+            let statusTriageStr = stats.triage + (triageOverrideDia ? " (HACK DÍA)" : (triageOverrideTurnos > 0 ? ` (HACK ${triageOverrideTurnos} T)` : (antiHackRojoTurnos > 0 ? ` (ANTIHACK ROJO ${antiHackRojoTurnos} T)` : (antiHackAmarilloTurnos > 0 ? ` (ANTIHACK AMARILLO ${antiHackAmarilloTurnos} T)` : ""))));
+            
+            let reporte = `${stats.dia} | ${stats.contexto}\n\nStats\n\nEnergía: ${stats.energia}/${stats.max_energia} (${getFirmaEnergia(stats.energia)})\nTiempo: ${stats.tiempo} ticks\nMood: ${stats.mood}/${stats.max_mood}\nEstrés: ${stats.estres}/${stats.max_estres}\nEXP Acumulada: ${stats.expAcumulada} EXP\nInstinto: ${stats.instinto}\nTriage: ${statusTriageStr}\n\nMelodía: ${melodia.join('') || 'Ninguna'}\nCadena Táctica: ${cadenaTacticaEjecutada.join('') || 'Ninguna'}\n\nCondiciones:\n${condText}\n\nObjetos (${inventario.length}/15):\n${objText || '- Sin suministros'}\n\nPuntos EGO: ${stats.ego}/${stats.max_ego}`;
+            document.getElementById('textarea-snapshot').value = reporte;
+        }
+
+        function dispararFlashWarningVisual() {
+            const contenedorHud = document.getElementById('hud-main-container');
+            contenedorHud.classList.add('alerta-warning-activa');
+            setTimeout(() => { contenedorHud.classList.remove('alerta-warning-activa'); }, 600);
+        }
+
+        // JERARQUÍA COMPLETA DE TRIAGE (PRIORIDAD 1: VERDE, PRIORIDAD 2: ANTIHACK, PRIORIDAD 3: NATURAL)
+        function calcularTriageEcuacion() {
+            if (triageOverrideDia || triageOverrideTurnos > 0) return "VERDE";
+            if (antiHackRojoTurnos > 0) return "ROJO";
+            if (antiHackAmarilloTurnos > 0) return "AMARILLO";
+            
+            let inestabilidad = stats.estres - (stats.energia + stats.mood);
+            if (inestabilidad <= -7) return "VERDE";
+            if (inestabilidad >= -6 && inestabilidad <= -4) return "AMARILLO";
+            return "ROJO";
+        }
+
+        function sumarseEXP(montoBase) {
+            let triageActual = calcularTriageEcuacion();
+            let montoGanado = (triageActual === "AMARILLO") ? 0.5 : montoBase;
+            stats.expAcumulada = parseFloat((stats.expAcumulada + montoGanado).toFixed(1));
+            registrarLog(`[EXP REGISTRADA]: +${montoGanado} EXP (Modo Triage: ${triageActual}). Total: ${stats.expAcumulada} EXP.`);
+        }
+
+        function chequearCombosDeMelodia() {
+            let detectado = null;
+            if (melodia.length >= 3) {
+                let u3 = melodia.slice(-3).sort().join('+');
+                if (MATRIZ_COMBOS[u3]) detectado = u3;
+            }
+            if (!detectado && melodia.length >= 2) {
+                let u2 = melodia.slice(-2).sort().join('+');
+                if (MATRIZ_COMBOS[u2]) detectado = u2;
+            }
+
+            if (detectado) {
+                let repetido = combosUsadosHoy[detectado] ? true : false;
+                let costeEgo = repetido ? 2 : 1;
+                stats.ego = Math.max(0, stats.ego - costeEgo);
+                combosUsadosHoy[detectado] = true;
+
+                if (repetido) {
+                    registrarLog(`⚠️ ¡WARNING! Combo duplicado hoy: [${MATRIZ_COMBOS[detectado].nombre}]. -2 EGO.`);
+                    dispararFlashWarningVisual();
+                }
+                MATRIZ_COMBOS[detectado].fx();
+                guardarEnDisco(); actualizarUI();
+            }
+        }
+
+        function aplicarCuracionBloqueCondiciones() {
+            condicionesArray.forEach(c => {
+                if (c.tipo === 'normal' && c.hpActual < c.hpMax) {
+                    c.hpActual++;
+                    if (c.hpActual >= c.hpMax) registrarLog(`[SANACIÓN COMPLETE]: ${c.nombre} curado.`);
+                }
+            });
+        }
+
+        function ejecutarAccion(tipo) {
+            let ticks = (tipo === 'C' || tipo === 'S' || tipo === 'O') ? 3 : ((tipo === 'L' || tipo === 'Ds' || tipo === 'E') ? 2 : 1);
+            if (stats.tiempo < ticks) { alert("Reserva temporal insuficiente."); return; }
+
+            let triageCalculado = calcularTriageEcuacion();
+
+            if (tipo === 'C' && triageCalculado === "ROJO") {
+                if (!confirm("⚠️ ALERTA DE TRIAGE ROJO: Operar en estado inestable provocaría +1 Condición Negativa en tu organismo. ¿Deseas forzar la Caza de todas formas?")) {
+                    return;
+                }
+                alert("⚠️ CAZA EJECUTADA EN ROJO: Recuerda forjar 1 Carga Clínica/Enfermedad manualmente en la configuración.");
+            }
+
+            let tieneCondicionesCurables = condicionesArray.some(c => c.tipo === 'normal' && c.hpActual < c.hpMax);
+            if (tipo === 'E' && !tieneCondicionesCurables) { alert("Enfermería inactiva: Sin patologías curables registradas."); return; }
+
+            registrarPasoHistorial();
+            stats.tiempo -= ticks;
+            cadenaTacticaEjecutada.push(tipo);
+
+            let inst = stats.instinto.trim().toLowerCase();
+
+            if (tipo === 'C') {
+                let expBase = 1.0;
+                if ((inst === "frenesí" || inst === "frenesi") && !bonoFrenesiUsadoHoy) {
+                    expBase += 1.0;
+                    bonoFrenesiUsadoHoy = true;
+                    registrarLog("[BONO FRENESÍ]: +1 EXP Extra aplicada a la primera Caza del día.");
+                }
+                if (inst === "animado" && !bonoAnimadoUsadoHoy) {
+                    expBase += 1.0;
+                    bonoAnimadoUsadoHoy = true;
+                    registrarLog("[BONO ANIMADO]: +1 EXP Extra aplicada a la primera Caza del día.");
+                }
+                sumarseEXP(expBase);
+            }
+
+            if (tipo === 'S') {
+                if (inst === "animado" && !bonoSaltoAnimadoUsadoHoy) {
+                    cadenaTacticaEjecutada.push('S');
+                    bonoSaltoAnimadoUsadoHoy = true;
+                    registrarLog("[BONO ANIMADO]: +1 S Extra registrado a la Cadena Táctica.");
+                }
+                if (inst === "juguetón" && !bonoSaltoJuguetonUsadoHoy) {
+                    cadenaTacticaEjecutada.push('S');
+                    bonoSaltoJuguetonUsadoHoy = true;
+                    registrarLog("[BONO JUGUETÓN]: +1 S Extra registrado a la Cadena Táctica.");
+                }
+            }
+
+            // CONSUMIR CARGAS DE HACKS O ANTIHACKS
+            if (triageOverrideTurnos > 0 && !triageOverrideDia) {
+                triageOverrideTurnos--;
+                registrarLog(`[TRIAGE HACK]: Consumida 1 carga de Triage Verde (${triageOverrideTurnos} remanentes).`);
+            } else if (antiHackRojoTurnos > 0) {
+                antiHackRojoTurnos--;
+                registrarLog(`[ANTIHACK TRIAGE]: Consumida 1 carga de Triage Rojo (${antiHackRojoTurnos} remanentes).`);
+            } else if (antiHackAmarilloTurnos > 0) {
+                antiHackAmarilloTurnos--;
+                registrarLog(`[ANTIHACK TRIAGE]: Consumida 1 carga de Triage Amarillo (${antiHackAmarilloTurnos} remanentes).`);
+            }
+
+            switch(tipo) {
+                case 'C': stats.estres = Math.min(stats.max_estres, stats.estres + 1); stats.energia = Math.max(0, stats.energia - 1); break;
+                case 'S': stats.estres = Math.max(0, stats.estres - 1); stats.energia = Math.min(stats.max_energia, stats.energia + (stats.mood >= stats.max_mood ? 2 : 1)); stats.mood = Math.min(stats.max_mood, stats.mood + 1); break;
+                case 'D': case 'L': case 'Ds': case 'O': stats.energia = Math.min(stats.max_energia, stats.energia + 1); if (tipo === 'O') stats.estres = Math.max(0, stats.estres - 1); break;
+                case 'E':
+                    stats.energia = Math.min(stats.max_energia, stats.energia + 1);
+                    stats.estres = Math.max(0, stats.estres - 1);
+                    aplicarCuracionBloqueCondiciones();
+                    break;
+            }
+
+            melodia.push(tipo);
+            registrarLog(`Acción de Campo: ${tipo} (-${ticks} Ticks).`);
+            chequearCombosDeMelodia();
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function crearCategoria() {
+            let cat = document.getElementById('new-cat-nombre').value.trim();
+            if (cat && !categoriasMochila.includes(cat)) {
+                registrarPasoHistorial();
+                categoriasMochila.push(cat);
+                document.getElementById('new-cat-nombre').value = '';
+                guardarEnDisco(); actualizarUI();
+            }
+        }
+
+        function eliminarCategoria(cat) {
+            if (confirm(`¿Eliminar la categoría "${cat}"? Los objetos pasarán a "No Categorizado".`)) {
+                registrarPasoHistorial();
+                categoriasMochila = categoriasMochila.filter(c => c !== cat);
+                inventario.forEach(item => { if (item.categoria === cat) item.categoria = "No Categorizado"; });
+                guardarEnDisco(); actualizarUI();
+            }
+        }
+
+        function consumirObjetoMochila(id) {
+            let index = inventario.findIndex(item => item.id === id);
+            if (index === -1) return;
+
+            registrarPasoHistorial();
+            let obj = inventario[index];
+            if (obj.deltas.tiempo) stats.tiempo = Math.max(0, stats.tiempo + obj.deltas.tiempo);
+            if (obj.deltas.energia) stats.energia = Math.max(0, Math.min(stats.max_energia, stats.energia + obj.deltas.energia));
+            if (obj.deltas.ego) stats.ego = Math.max(0, Math.min(stats.max_ego, stats.ego + obj.deltas.ego));
+            if (obj.deltas.mood) stats.mood = Math.max(0, Math.min(stats.max_mood, stats.mood + obj.deltas.mood));
+            if (obj.deltas.estres) stats.estres = Math.max(0, Math.min(stats.max_estres, stats.estres + obj.deltas.estres));
+            
+            // PROCESAR HACK Y ANTIHACKS DE OBJETOS
+            if (obj.triageHack === "dia") {
+                triageOverrideDia = true;
+                registrarLog(`[HACK BIOMÉTRICO]: ${obj.nombre} ha fijado el Triage en VERDE durante todo el día.`);
+            } else if (obj.triageHack === "turn1") {
+                triageOverrideTurnos += 1;
+                registrarLog(`[HACK BIOMÉTRICO]: ${obj.nombre} otorga +1 Carga de Triage Verde.`);
+            } else if (obj.triageHack === "turn2") {
+                triageOverrideTurnos += 2;
+                registrarLog(`[HACK BIOMÉTRICO]: ${obj.nombre} otorga +2 Cargas de Triage Verde.`);
+            } else if (obj.triageHack === "anti_amarillo_1") {
+                antiHackAmarilloTurnos += 1;
+                registrarLog(`[ANTIHACK BIOMÉTRICO]: ${obj.nombre} fuerza Triage AMARILLO (+1 Turno).`);
+            } else if (obj.triageHack === "anti_amarillo_2") {
+                antiHackAmarilloTurnos += 2;
+                registrarLog(`[ANTIHACK BIOMÉTRICO]: ${obj.nombre} fuerza Triage AMARILLO (+2 Turnos).`);
+            } else if (obj.triageHack === "anti_rojo_1") {
+                antiHackRojoTurnos += 1;
+                registrarLog(`[ANTIHACK BIOMÉTRICO]: ${obj.nombre} fuerza Triage ROJO (+1 Turno).`);
+            } else if (obj.triageHack === "anti_rojo_2") {
+                antiHackRojoTurnos += 2;
+                registrarLog(`[ANTIHACK BIOMÉTRICO]: ${obj.nombre} fuerza Triage ROJO (+2 Turnos).`);
+            }
+
+            registrarLog(`Consumido: ${obj.nombre}.`);
+            inventario.splice(index, 1);
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function toggleEdicionObjeto(id) {
+            idEditandoObjeto = idEditandoObjeto === id ? null : id;
+            actualizarUI();
+        }
+
+        function guardarEdicionObjeto(id) {
+            let obj = inventario.find(item => item.id === id);
+            if (obj) {
+                registrarPasoHistorial();
+                obj.nombre = document.getElementById(`ed-obj-nom-${id}`).value.trim() || obj.nombre;
+                obj.desc = document.getElementById(`ed-obj-desc-${id}`).value.trim() || obj.desc;
+                obj.categoria = document.getElementById(`ed-obj-cat-${id}`).value;
+                idEditandoObjeto = null;
+                guardarEnDisco(); actualizarUI();
+            }
+        }
+
+        function crearCondicionManual() {
+            let nombre = document.getElementById('add-cond-nombre').value.trim();
+            let desc = document.getElementById('add-cond-desc').value.trim();
+            let tipo = document.getElementById('add-cond-tipo').value;
+            let hpMax = parseInt(document.getElementById('add-cond-hp').value) || 1;
+
+            if(!nombre) { alert("Asigna una firma a la anomalía."); return; }
+            registrarPasoHistorial();
+
+            condicionesArray.push({ nombre, desc: desc || "Efecto constante.", tipo, hpActual: 0, hpMax });
+            guardarEnDisco(); actualizarUI();
+
+            document.getElementById('add-cond-nombre').value = '';
+            document.getElementById('add-cond-desc').value = '';
+            document.getElementById('add-cond-hp').value = '';
+            registrarLog(`Inyectada carga clínica: ${nombre}.`);
+        }
+
+        function crearSuministroManual() {
+            let nom = document.getElementById('add-item-nombre').value.trim();
+            let des = document.getElementById('add-item-desc').value.trim();
+            let cat = document.getElementById('add-item-cat').value;
+            let triageHack = document.getElementById('add-item-triagehack').value;
+            if (!nom) { alert("Falta el identificador."); return; }
+
+            registrarPasoHistorial();
+            inventario.push({
+                id: "i_" + Date.now(),
+                nombre: nom, desc: des || "Efecto modulado.", categoria: cat || "No Categorizado",
+                triageHack: triageHack !== "none" ? triageHack : undefined,
+                deltas: {
+                    tiempo: parseInt(document.getElementById('add-item-ticks').value) || 0,
+                    energia: parseInt(document.getElementById('add-item-en').value) || 0,
+                    ego: parseInt(document.getElementById('add-item-ego').value) || 0,
+                    mood: parseInt(document.getElementById('add-item-mood').value) || 0,
+                    estres: parseInt(document.getElementById('add-item-estres').value) || 0
+                }
+            });
+            guardarEnDisco(); actualizarUI();
+            document.getElementById('add-item-nombre').value = ''; document.getElementById('add-item-desc').value = '';
+            toggleFormCrearItem(); registrarLog(`Suministro guardado: ${nom}.`);
+        }
+
+        function resetDay() {
+            const cp = localStorage.getItem('alpha_fenrir_core_checkpoint_v3');
+            if (cp && confirm("¿Regresar la matriz al estado exacto del inicio del día?")) {
+                registrarPasoHistorial();
+                const d = JSON.parse(cp);
+                stats = d.stats;
+                melodia = d.melodia || [];
+                cadenaTacticaEjecutada = d.cadenaTacticaEjecutada || [];
+                inventario = d.inventario || [];
+                categoriasMochila = d.categoriasMochila || [];
+                combosUsadosHoy = d.combosUsadosHoy || {};
+                condicionesArray = d.condicionesArray || [];
+                bonoAnimadoUsadoHoy = d.bonoAnimadoUsadoHoy || false;
+                bonoFrenesiUsadoHoy = d.bonoFrenesiUsadoHoy || false;
+                bonoSaltoAnimadoUsadoHoy = d.bonoSaltoAnimadoUsadoHoy || false;
+                bonoSaltoJuguetonUsadoHoy = d.bonoSaltoJuguetonUsadoHoy || false;
+                triageOverrideDia = d.triageOverrideDia || false;
+                triageOverrideTurnos = d.triageOverrideTurnos || 0;
+                antiHackAmarilloTurnos = d.antiHackAmarilloTurnos || 0;
+                antiHackRojoTurnos = d.antiHackRojoTurnos || 0;
+                estadosCategoriasAbiertas = d.estadosCategoriasAbiertas || {};
+                
+                guardarEnDisco(); actualizarUI(); registrarLog("Matriz reseteada por completo al Checkpoint inicial.");
+            }
+        }
+
+        function pasarDia(esDescansoTotal) {
+            if (confirm(esDescansoTotal ? "¿Ejecutar Descanso Total?" : "¿Pasar jornada académica?")) {
+                registrarPasoHistorial();
+                stats.energia = Math.min(stats.max_energia, stats.energia + 4);
+                stats.estres = Math.max(0, stats.estres - 1);
+                stats.expAcumulada = 0.0;
+                melodia = []; cadenaTacticaEjecutada = []; combosUsadosHoy = {}; 
+                bonoAnimadoUsadoHoy = false; bonoFrenesiUsadoHoy = false;
+                bonoSaltoAnimadoUsadoHoy = false; bonoSaltoJuguetonUsadoHoy = false;
+                triageOverrideDia = false; triageOverrideTurnos = 0;
+                antiHackAmarilloTurnos = 0; antiHackRojoTurnos = 0;
+                
+                condicionesArray = condicionesArray.filter(c => c.tipo === 'incurable' || c.hpActual < c.hpMax);
+
+                let idx = DIAS_SEMANA.indexOf(stats.dia);
+                if (idx !== -1) stats.dia = DIAS_SEMANA[(idx + 1) % DIAS_SEMANA.length];
+                if (esDescansoTotal) stats.monedas += 2;
+                stats.tiempo = stats.max_tiempo;
+
+                guardarCheckpointInicial();
+                guardarEnDisco(); actualizarUI(); registrarLog(`Transición limpia hacia el ${stats.dia}. Checkpoint actualizado.`);
+            }
+        }
+
+        function ejecutarHabilidad(tipo) {
+            registrarPasoHistorial();
+            switch(tipo) {
+                case 'overclocked':
+                    if(stats.energia >= 2) { stats.energia -= 2; stats.ego = Math.min(stats.max_ego, stats.ego + 1); } 
+                    else { alert("Energía insuficiente."); historial.pop(); return; } break;
+                case 'aullido':
+                    if(stats.ego >= 2) { stats.ego -= 2; stats.instinto = "Calmado"; triageOverrideDia = true; } 
+                    else { alert("EGO insuficiente."); historial.pop(); return; } break;
+                case 'piel':
+                    if(stats.ego >= 2) { stats.ego -= 2; } else { alert("EGO insuficiente."); historial.pop(); return; } break;
+                case 'rastro':
+                    if(stats.ego >= 1) { stats.ego -= 1; stats.instinto = "Frenesí"; } else { alert("EGO insuficiente."); historial.pop(); return; } break;
+                case 'melodia-inv':
+                    melodia.reverse(); registrarLog("Frecuencias invertidas por Melodía Infernal."); break;
+            }
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function inyectarNota(nota) {
+            if(stats.ego >= 1) {
+                registrarPasoHistorial(); stats.ego -= 1; melodia.push(nota);
+                registrarLog(`Inyección Guardián: ${nota}.`);
+                chequearCombosDeMelodia(); guardarEnDisco(); actualizarUI();
+            } else { alert("EGO insuficiente."); }
+        }
+
+        function manualRenovarCombos() {
+            registrarPasoHistorial(); combosUsadosHoy = {}; guardarEnDisco(); actualizarUI();
+            registrarLog("[MATRIZ]: Alertas de combo duplicado limpiadas.");
+        }
+
+        function manualReiniciarInstintos() {
+            registrarPasoHistorial();
+            bonoAnimadoUsadoHoy = false;
+            bonoFrenesiUsadoHoy = false;
+            bonoSaltoAnimadoUsadoHoy = false;
+            bonoSaltoJuguetonUsadoHoy = false;
+            guardarEnDisco(); actualizarUI();
+            registrarLog("[MATRIZ]: Bonos diarios de Instinto (Animado/Frenesí/Juguetón) reseteados.");
+        }
+
+        function manualResetContadores() {
+            registrarPasoHistorial(); stats.eventosPositivos = 0; stats.rompeLimites = 0; guardarEnDisco(); actualizarUI();
+            registrarLog("[MATRIZ]: Contadores de contingencias reseteados.");
+        }
+
+        function guardarCambioManual(propiedad, valor) {
+            stats[propiedad] = valor; guardarEnDisco(); actualizarUI();
+        }
+
+        function guardarOverrideTriageDia(valStr) {
+            registrarPasoHistorial();
+            triageOverrideDia = (valStr === "true");
+            guardarEnDisco(); actualizarUI();
+            registrarLog(`[MANTENIMIENTO]: Override de Triage Verde Día -> [${triageOverrideDia}].`);
+        }
+
+        function guardarOverrideTriageTurnos(val) {
+            registrarPasoHistorial();
+            triageOverrideTurnos = Math.max(0, val);
+            guardarEnDisco(); actualizarUI();
+            registrarLog(`[MANTENIMIENTO]: Cargas de Triage Verde -> [${triageOverrideTurnos}].`);
+        }
+
+        function guardarAntiHackTurnos(tipo, val) {
+            registrarPasoHistorial();
+            if (tipo === 'amarillo') antiHackAmarilloTurnos = Math.max(0, val);
+            if (tipo === 'rojo') antiHackRojoTurnos = Math.max(0, val);
+            guardarEnDisco(); actualizarUI();
+            registrarLog(`[MANTENIMIENTO]: Cargas Antihack ${tipo.toUpperCase()} -> [${val}].`);
+        }
+
+        function toggleCategoriaAcoplamiento(cat, e) {
+            estadosCategoriasAbiertas[cat] = e.target.open;
+            guardarEnDisco();
+        }
+
+        function toggleFormCrearItem() { const f = document.getElementById('panel-forja-objeto'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+        function togglePanelEdicion() { const p = document.getElementById('panel-edicion-manual'); p.style.display = p.style.display === 'none' ? 'block' : 'none'; }
+        function limpiarMelodia() { if(melodia.length > 0) { registrarPasoHistorial(); melodia = []; guardarEnDisco(); actualizarUI(); } }
+        function eliminarItem(id) { registrarPasoHistorial(); inventario = inventario.filter(i => i.id !== id); guardarEnDisco(); actualizarUI(); }
+        function eliminarCondicion(index) { registrarPasoHistorial(); condicionesArray.splice(index, 1); guardarEnDisco(); actualizarUI(); }
+
+        function construirUICombosCodice() {
+            const root = document.getElementById('lista-codice-combos-ui'); root.innerHTML = '';
+            Object.keys(MATRIZ_COMBOS).forEach(key => {
+                let div = document.createElement('div');
+                div.style.padding = '5px'; div.style.borderBottom = '1px solid #1a1d26';
+                div.innerHTML = `<span style="color:var(--oro-moneda); font-weight:bold;">[${key}]</span> <span style="color:#fff; font-weight:bold;">${MATRIZ_COMBOS[key].nombre}:</span> <span style="color:#a0aec0; font-size:0.75rem;">${MATRIZ_COMBOS[key].desc}</span>`;
+                root.appendChild(div);
+            });
+        }
+
+        function actualizarUI() {
+            stats.triage = calcularTriageEcuacion();
+
+            const inst = stats.instinto.trim().toLowerCase();
+            const r = document.documentElement;
+            if (inst === "frenesí" || inst === "frenesi") {
+                r.style.setProperty('--bg-principal', '#0c0505'); r.style.setProperty('--bg-tarjeta', '#180a0a'); r.style.setProperty('--borde', '#3a1212'); r.style.setProperty('--azul-ego', '#ff4d4d'); r.style.setProperty('--neon-glow', 'rgba(255, 51, 51, 0.25)');
+            } else if (inst === "animado" || inst === "juguetón" || inst === "jugueton") {
+                r.style.setProperty('--bg-principal', '#030c0e'); r.style.setProperty('--bg-tarjeta', '#0a140f'); r.style.setProperty('--borde', '#1e3c2f'); r.style.setProperty('--azul-ego', '#22c55e'); r.style.setProperty('--neon-glow', 'rgba(34, 197, 94, 0.2)');
+            } else {
+                r.style.setProperty('--bg-principal', '#08090c'); r.style.setProperty('--bg-tarjeta', '#12141c'); r.style.setProperty('--borde', '#1f2430'); r.style.setProperty('--azul-ego', '#00d9ff'); r.style.setProperty('--neon-glow', 'rgba(0, 217, 255, 0.15)');
+            }
+
+            document.getElementById('input-dia').value = stats.dia;
+            document.getElementById('input-contexto').value = stats.contexto;
+            document.getElementById('input-energia').value = stats.energia;
+            document.getElementById('input-max-energia').value = stats.max_energia;
+            document.getElementById('input-ego').value = stats.ego;
+            document.getElementById('input-max-ego').value = stats.max_ego;
+            document.getElementById('input-tiempo').value = stats.tiempo;
+            document.getElementById('input-max-tiempo').value = stats.max_tiempo;
+            document.getElementById('input-mood').value = stats.mood;
+            document.getElementById('input-estres').value = stats.estres;
+            document.getElementById('input-exp').value = stats.expAcumulada;
+            document.getElementById('input-monedas').value = stats.monedas;
+            document.getElementById('input-instinto').value = stats.instinto;
+            document.getElementById('input-eventos').value = stats.eventosPositivos;
+            document.getElementById('input-rompe').value = stats.rompeLimites;
+            document.getElementById('input-triage-dia').value = triageOverrideDia ? "true" : "false";
+            document.getElementById('input-triage-turnos').value = triageOverrideTurnos;
+            document.getElementById('input-antihack-ama').value = antiHackAmarilloTurnos;
+            document.getElementById('input-antihack-rojo').value = antiHackRojoTurnos;
+
+            document.getElementById('display-contexto-dia').innerText = `${stats.dia} | ${stats.contexto}`;
+            document.getElementById('txt-energia').innerHTML = `${stats.energia}/${stats.max_energia}<br><span style="font-size:0.7rem; color:#a0aec0; font-weight:bold;">${getFirmaEnergia(stats.energia)}</span>`;
+            document.getElementById('txt-ego').innerText = `${stats.ego}/${stats.max_ego}`;
+            document.getElementById('txt-tiempo').innerText = `${stats.tiempo} Ticks`;
+            document.getElementById('txt-mood-estres').innerText = `${stats.mood} / ${stats.estres}`;
+            document.getElementById('txt-exp-val').innerText = `${stats.expAcumulada.toFixed(1)} EXP`;
+            document.getElementById('txt-contadores-hud').innerText = `M:${stats.monedas} | E:${stats.eventosPositivos} | R:${stats.rompeLimites}`;
+            
+            let labelTriage = stats.triage;
+            if (triageOverrideDia) labelTriage += " 🛡️";
+            else if (triageOverrideTurnos > 0) labelTriage += ` (${triageOverrideTurnos} T)`;
+            else if (antiHackRojoTurnos > 0) labelTriage += ` ⚠️ (${antiHackRojoTurnos} T)`;
+            else if (antiHackAmarilloTurnos > 0) labelTriage += ` ⚠️ (${antiHackAmarilloTurnos} T)`;
+            
+            document.getElementById('txt-triage-instinto').innerText = labelTriage;
+            document.getElementById('txt-sub-instinto').innerText = stats.instinto;
+
+            const tTxt = document.getElementById('txt-triage-instinto');
+            if(stats.triage === "VERDE") tTxt.style.color = "var(--verde-triage)";
+            else if(stats.triage === "AMARILLO") tTxt.style.color = "var(--amarillo-mood)";
+            else tTxt.style.color = "var(--rojo-frenesi)";
+
+            const bEnf = document.getElementById('btn-enfermeria');
+            let tieneCondicionesCurables = condicionesArray.some(c => c.tipo === 'normal' && c.hpActual < c.hpMax);
+            if(!tieneCondicionesCurables) {
+                bEnf.style.opacity = "0.4"; bEnf.style.borderLeftColor = "var(--borde)";
+            } else {
+                bEnf.style.opacity = "1"; bEnf.style.borderLeftColor = "var(--rojo-frenesi)";
+            }
+
+            document.getElementById('bar-energia').style.width = `${(stats.energia / stats.max_energia) * 100}%`;
+            document.getElementById('bar-ego').style.width = `${(stats.ego / stats.max_ego) * 100}%`;
+            document.getElementById('bar-tiempo').style.width = `${(stats.tiempo / stats.max_tiempo) * 100}%`;
+            document.getElementById('bar-mood').style.width = `${(stats.mood / stats.max_mood) * 100}%`;
+
+            const dispMel = document.getElementById('display-melodia');
+            if (melodia.length === 0) dispMel.innerText = "Ninguna";
+            else {
+                dispMel.innerHTML = '';
+                melodia.forEach(nota => {
+                    let s = document.createElement('span'); s.className = 'nota-tag'; s.innerText = nota; dispMel.appendChild(s);
+                });
+            }
+
+            document.getElementById('display-cadena-tactica').innerText = cadenaTacticaEjecutada.join('') || "Ninguna";
+
+            document.getElementById('txt-inv-count').innerText = inventario.length;
+            const cInv = document.getElementById('lista-inventario'); cInv.innerHTML = '';
+            
+            let categoriasSet = ["No Categorizado", ...categoriasMochila];
+            
+            const selCat = document.getElementById('add-item-cat');
+            selCat.innerHTML = '';
+            categoriasSet.forEach(c => {
+                let opt = document.createElement('option'); opt.value = c; opt.innerText = `Categoría: ${c}`; selCat.appendChild(opt);
+            });
+
+            const rootCatsUI = document.getElementById('lista-categorias-ui'); rootCatsUI.innerHTML = '';
+            categoriasMochila.forEach(cat => {
+                let s = document.createElement('span');
+                s.style.cssText = "background:#12141c; border:1px solid var(--borde); padding:2px 6px; border-radius:2px; font-size:0.65rem; color:#fff; display:flex; align-items:center; gap:4px;";
+                s.innerHTML = `${cat} <button onclick="eliminarCategoria('${cat}')" style="border:none; background:transparent; color:var(--rojo-frenesi); cursor:pointer; font-weight:bold;">X</button>`;
+                rootCatsUI.appendChild(s);
+            });
+
+            // RENDERIZADO ACOPLADO (CERRADO POR DEFECTO RECONOCIENDO CLICS PREVIOS)
+            categoriasSet.forEach(cat => {
+                let itemsDeCat = inventario.filter(item => (item.categoria || "No Categorizado") === cat);
+                if (itemsDeCat.length > 0) {
+                    let detCat = document.createElement('details');
+                    detCat.className = 'cat-group';
+                    detCat.open = estadosCategoriasAbiertas[cat] ? true : false; // Acoplado por defecto
+                    detCat.setAttribute('ontoggle', `toggleCategoriaAcoplamiento('${cat}', event)`);
+
+                    let sumCat = document.createElement('summary');
+                    sumCat.className = 'cat-summary';
+                    sumCat.innerHTML = `<span>📂 ${cat.toUpperCase()}</span> <span>(${itemsDeCat.length})</span>`;
+                    detCat.appendChild(sumCat);
+
+                    let divContent = document.createElement('div');
+                    divContent.className = 'cat-content';
+
+                    itemsDeCat.forEach(item => {
+                        let d = document.createElement('div'); d.className = 'item-linea';
+                        
+                        let htmlEditObj = '';
+                        if (idEditandoObjeto === item.id) {
+                            let optionsCatHTML = categoriasSet.map(c => `<option value="${c}" ${item.categoria===c?'selected':''}>${c}</option>`).join('');
+                            htmlEditObj = `
+                                <div style="background:#000; border:1px dashed var(--azul-ego); padding:6px; margin-top:4px; border-radius:2px; display:flex; flex-direction:column; gap:4px;">
+                                    <input type="text" id="ed-obj-nom-${item.id}" value="${item.nombre}" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:3px; font-size:0.75rem;">
+                                    <input type="text" id="ed-obj-desc-${item.id}" value="${item.desc}" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:3px; font-size:0.75rem;">
+                                    <select id="ed-obj-cat-${item.id}" style="background:#12141c; border:1px solid var(--borde); color:#fff; padding:3px; font-size:0.75rem;">${optionsCatHTML}</select>
+                                    <button onclick="guardarEdicionObjeto('${item.id}')" style="background:var(--verde-triage); border:none; color:#000; font-weight:bold; padding:2px; font-size:0.7rem; cursor:pointer;">✓ Guardar</button>
+                                </div>
+                            `;
+                        }
+
+                        d.innerHTML = `
+                            <div class="item-header">
+                                <span class="item-nombre">${item.nombre}</span>
+                                <div style="display:flex; gap:2px;">
+                                    <button class="btn-accion-item" onclick="toggleEdicionObjeto('${item.id}')">✏️</button>
+                                    <button class="btn-accion-item" onclick="eliminarItem('${item.id}')">X</button>
+                                </div>
+                            </div>
+                            <div class="item-desc">${item.desc}</div>
+                            <div class="item-controles"><button class="btn-use-item" onclick="consumirObjetoMochila('${item.id}')">⚡ Usar</button></div>
+                            ${htmlEditObj}
+                        `;
+                        divContent.appendChild(d);
+                    });
+
+                    detCat.appendChild(divContent);
+                    cInv.appendChild(detCat);
+                }
+            });
+
+            // CARGAS CLÍNICAS
+            const rootCondHUD = document.getElementById('contenedor-condiciones-hud');
+            rootCondHUD.innerHTML = '';
+            if(condicionesArray.length === 0) {
+                rootCondHUD.innerHTML = '<span style="font-family:var(--fuente-hud); font-size:0.8rem; color:#4a5568;">Ninguna anomalía celular en el organismo.</span>';
+            } else {
+                condicionesArray.forEach((c, index) => {
+                    let statusHP = (c.hpActual >= c.hpMax && c.tipo === 'normal') ? '<span style="color:var(--verde-triage); font-weight:bold;">¡CURADO!</span>' : `${c.hpActual}/${c.hpMax} HP`;
+                    let tagLabel = c.tipo === 'incurable' ? '<span style="color:var(--amarillo-mood); font-size:0.65rem;">[CONST]</span> ' : '[NML] ';
+                    let div = document.createElement('div'); div.className = 'condicion-tag-hud';
+                    div.innerHTML = `${tagLabel}<span style="color:#fff; font-weight:bold;">${c.nombre}:</span> ${c.desc} <span style="color:var(--azul-ego); font-weight:bold;">(${statusHP})</span> <button class="btn-accion-item" onclick="eliminarCondicion(${index})" style="padding:0px 4px; margin-left:5px; font-size:0.6rem;">X</button>`;
+                    rootCondHUD.appendChild(div);
+                });
+            }
+
+            // WARNINGS DE COMBOS
+            const contenedorWarns = document.getElementById('contenedor-warnings-lista'); contenedorWarns.innerHTML = '';
+            let listaWarnKeys = Object.keys(combosUsadosHoy);
+            if (listaWarnKeys.length === 0) {
+                contenedorWarns.innerHTML = '<span style="font-size:0.8rem; color:#4a5568; font-family:var(--fuente-hud);">- Matriz Limpia. Sin riesgos de Alerta.</span>';
+            } else {
+                listaWarnKeys.forEach(key => {
+                    let s = document.createElement('span'); s.className = 'combo-alert-tag'; s.innerText = `[${key}] ${MATRIZ_COMBOS[key].nombre}`; contenedorWarns.appendChild(s);
+                });
+            }
+
+            if(document.getElementById('panel-ventana-reporte').style.display === 'block') compilarSnapshotText();
+        }
+
+        window.addEventListener('keydown', function(e) { if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); deshacer(); } });
+
+        cargarSistema();
+    </script>
+</body>
+</html>

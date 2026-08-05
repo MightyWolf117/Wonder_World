@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Tienda de la Manada v2.0</title>
+    <style>
+        :root {
+            --bg-principal: #0b0e14;
+            --bg-tarjeta: #111520;
+            --borde: #1f2633;
+            --verde-suerte: #00ff66;
+            --azul-ego: #00d9ff;
+            --amarillo-mood: #ffcc00;
+            --rojo-alerta: #ff3333;
+            --morado-secreto: #cc00ff;
+            --texto: #e2e8f0;
+            --fuente-hud: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contenedor { max-width: 1200px; width: 100%; }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 { margin: 0; color: var(--verde-suerte); font-size: 1.8rem; letter-spacing: 2px; font-family: var(--fuente-hud); }
+
+        .btn-sistema {
+            background-color: #06070a;
+            border: 1px solid var(--borde);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-family: var(--fuente-hud);
+            transition: all 0.2s;
+        }
+        .btn-sistema:hover { border-color: var(--verde-suerte); color: var(--verde-suerte); }
+
+        .panel-recursos {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .grid-recursos {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .bloque-recurso { text-align: center; font-family: var(--fuente-hud); }
+        .titulo-recurso { font-size: 0.8rem; color: #a0aec0; margin-bottom: 5px; }
+        .valor-recurso { font-size: 1.4rem; font-weight: bold; color: var(--verde-suerte); }
+        .btn-monto { background: #06070a; border: 1px solid var(--borde); color: #fff; width: 26px; height: 26px; border-radius: 3px; cursor: pointer; }
+        .btn-monto:hover { border-color: var(--azul-ego); color: var(--azul-ego); }
+
+        .contenedor-canjes-inversos {
+            margin-top: 15px;
+            border-top: 1px dashed var(--borde);
+            padding-top: 10px;
+            text-align: center;
+        }
+
+        .btn-desplegar-canjes {
+            background: #06070a;
+            border: 1px solid var(--azul-ego);
+            color: var(--azul-ego);
+            font-family: var(--fuente-hud);
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .nota-canjes-inversos {
+            display: none;
+            margin-top: 10px;
+            background: #06080f;
+            border: 1px solid var(--azul-ego);
+            border-radius: 4px;
+            padding: 12px;
+            font-family: var(--fuente-hud);
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .tabla-canjes { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .tabla-canjes th, .tabla-canjes td { border: 1px solid var(--borde); padding: 6px 10px; text-align: left; }
+        .tabla-canjes th { background-color: #0d121c; color: var(--azul-ego); }
+
+        .grid-rotativo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .tarjeta-tienda {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+
+        .contenedor-banner {
+            width: 100%; height: 160px;
+            background-color: #06070a;
+            border: 1px solid var(--borde);
+            border-radius: 4px;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; overflow: hidden;
+        }
+
+        .foto-banner { width: 100%; height: 100%; object-fit: cover; }
+
+        .compra-box {
+            background: #06070a;
+            border: 1px solid var(--borde);
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            font-family: var(--fuente-hud);
+            font-size: 0.72rem;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 2px;
+            background: #111a14;
+            border: 1px solid var(--verde-suerte);
+            color: var(--verde-suerte);
+            margin-bottom: 6px;
+        }
+        .stock-badge.agotado { background: #260c0c; border-color: var(--rojo-alerta); color: var(--rojo-alerta); }
+
+        .btn-comprar {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            background: #0d1a12;
+            border: 1px solid var(--verde-suerte);
+            color: var(--verde-suerte);
+            font-family: var(--fuente-hud);
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-comprar:hover { background: #142e1b; }
+        .btn-comprar:disabled { opacity: 0.3; cursor: not-allowed; border-color: var(--borde); color: #666; background: #06070a; }
+
+        .lista-integrantes { display: flex; flex-direction: column; gap: 8px; }
+        .card-integrante { background: #090c12; border: 1px solid var(--borde); padding: 8px; border-radius: 4px; font-size: 0.8rem; }
+
+        .btn-activar-efecto {
+            width: 100%; padding: 4px; margin-top: 4px;
+            background: #0c1624; border: 1px solid var(--azul-ego); color: var(--azul-ego);
+            font-family: var(--fuente-hud); cursor: pointer; border-radius: 2px; font-size: 0.75rem;
+        }
+        .btn-activar-efecto:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--borde); color: #666; }
+
+        /* TIENDA DEL BATALLÓN & TIENDA SECRETA */
+        .tienda-batallon {
+            background-color: var(--bg-tarjeta);
+            border: 2px solid var(--amarillo-mood);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        .tienda-secreta-active {
+            border-color: var(--morado-secreto) !important;
+            box-shadow: 0 0 20px rgba(204,0,255,0.2) !important;
+            background-color: #120919 !important;
+        }
+
+        .batallon-layout { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .grid-batallon-miembros { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; flex: 1; }
+        .card-batallon-miembro { background: #06070a; border: 1px solid var(--borde); padding: 10px; border-radius: 4px; text-align: center; }
+
+        .consola-log {
+            background-color: #040507;
+            border: 1px solid var(--borde);
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-family: var(--fuente-hud);
+            font-size: 0.8rem;
+            color: #a0aec0;
+            max-height: 120px;
+            overflow-y: auto;
+            border-left: 3px solid var(--verde-suerte);
+        }
+
+        details { background: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 4px; margin-bottom: 20px; }
+        summary { padding: 10px; font-family: var(--fuente-hud); font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+        .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; padding: 12px; background: #06080f; }
+        .edit-card { background: #0d121c; border: 1px solid var(--borde); padding: 8px; border-radius: 4px; font-family: var(--fuente-hud); font-size: 0.75rem; }
+        .edit-card input, .edit-card textarea { width: 100%; background: #04060a; border: 1px solid var(--borde); color: #fff; padding: 4px; margin-top: 3px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <div>
+                <h1>🛒 LA TIENDA DE LA MANADA</h1>
+                <div style="font-family:var(--fuente-hud); font-size:0.8rem; color:#a0aec0;">Módulo de Canje y Mercado Rotativo v2.0</div>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn-sistema" onclick="restablecerStockManual()" style="color:var(--azul-ego); border-color:var(--azul-ego);">🔄 Restablecer Stock Rotativo</button>
+                <button class="btn-sistema" onclick="exportarDataJSON()" style="color:var(--verde-suerte); border-color:var(--verde-suerte);">📥 Exportar Data</button>
+                <button class="btn-sistema" onclick="document.getElementById('input-json-import').click()">📤 Importar Data</button>
+                <input type="file" id="input-json-import" accept=".json" style="display:none;" onchange="importarDataJSON(this)">
+                <button class="btn-sistema" onclick="pasarElDia()" style="color:var(--amarillo-mood); border-color:var(--amarillo-mood);">☀️ PASAR EL DÍA</button>
+            </div>
+        </header>
+
+        <div class="panel-recursos">
+            <div class="grid-recursos">
+                <div class="bloque-recurso">
+                    <div class="titulo-recurso">MONEDAS DE MANADA</div>
+                    <div>
+                        <button class="btn-monto" onclick="modificarRecurso('monedas', -1)">-</button>
+                        <span class="valor-recurso" id="val-monedas">0</span>
+                        <button class="btn-monto" onclick="modificarRecurso('monedas', 1)">+</button>
+                    </div>
+                </div>
+                <div class="bloque-recurso">
+                    <div class="titulo-recurso">MONEDAS IRROMPIBLES (100% CARA)</div>
+                    <div>
+                        <button class="btn-monto" onclick="modificarRecurso('irrompibles', -1)">-</button>
+                        <span class="valor-recurso" id="val-irrompibles" style="color:var(--azul-ego);">0</span>
+                        <button class="btn-monto" onclick="modificarRecurso('irrompibles', 1)">+</button>
+                    </div>
+                </div>
+                <div class="bloque-recurso">
+                    <div class="titulo-recurso">EVENTOS POSITIVOS ASEGURADOS</div>
+                    <div>
+                        <button class="btn-monto" onclick="modificarRecurso('eventos', -1)">-</button>
+                        <span class="valor-recurso" id="val-eventos" style="color:var(--amarillo-mood);">0</span>
+                        <button class="btn-monto" onclick="modificarRecurso('eventos', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contenedor-canjes-inversos">
+                <button class="btn-desplegar-canjes" onclick="toggleNotaCanjes()">🔄 VER CANJES INVERSOS (CONVERSIÓN DE EXCEDENTES)</button>
+                <div class="nota-canjes-inversos" id="nota-canjes-box">
+                    <div style="color:var(--azul-ego); font-weight:bold; margin-bottom:4px;">📋 VALOR DE CANJES INVERSOS (MANUAL):</div>
+                    <div style="color:#a0aec0; font-size:0.75rem; margin-bottom:8px;">Usa esta guía rápida para gastar tu superávit de estadísticas ajustando manualmente los valores superiores:</div>
+                    <table class="tabla-canjes">
+                        <thead>
+                            <tr>
+                                <th>Recurso Consumido (Excedente)</th>
+                                <th>Resultado Obtenido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color:var(--rojo-alerta);">+1 Pobreza de Estrés</strong></td>
+                                <td><span style="color:var(--amarillo-mood);">+1 Evento Positivo Asegurado</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--verde-suerte);">2 Puntos de Energía Excedente</strong></td>
+                                <td><span style="color:var(--verde-suerte);">+1 Moneda de Manada</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--verde-suerte);">4 Puntos de Energía Excedente</strong></td>
+                                <td><span style="color:var(--azul-ego);">+1 Moneda Irrompible</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-rotativo" id="contenedor-tiendas-rotativas"></div>
+
+        <!-- MÓDULO INFERIOR (BATALLÓN O SECRETA) -->
+        <div class="tienda-batallon" id="contenedor-tienda-inferior"></div>
+
+        <details>
+            <summary>🛠️ CONFIGURACIÓN Y ADMINISTRACIÓN DE TROPAS Y CATALOGO</summary>
+            <div style="padding:12px; background:#04060a; border-top:1px solid var(--borde);">
+                <div style="font-family:var(--fuente-hud); font-size:0.8rem; color:var(--verde-suerte); margin-bottom:8px;">+ Registrar Nueva Tropa (4 Integrantes Exactos)</div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:6px; margin-bottom:8px;">
+                    <input type="text" id="new-tropa-id" placeholder="Clave ID (Ej: beastars)">
+                    <input type="text" id="new-tropa-nombre" placeholder="Nombre Tropa">
+                    <input type="text" id="new-tropa-costo" placeholder="Costo Base (Ej: 1 Moneda)">
+                    <input type="text" id="new-tropa-producto" placeholder="Producto Base (Ej: +2 E.G.O.)">
+                </div>
+                <button class="btn-sistema" onclick="crearNuevaTropa()" style="width:100%; color:var(--verde-suerte); border-color:var(--verde-suerte);">Añadir Tropa al Registro</button>
+            </div>
+            
+            <div style="padding:12px; background:#090312; border-top:1px solid var(--morado-secreto);">
+                <div style="font-family:var(--fuente-hud); font-size:0.8rem; color:var(--morado-secreto); margin-bottom:8px;">👁️ CONFIGURACIÓN DE LA TIENDA SECRETA (4 MIEMBROS)</div>
+                <div id="contenedor-mantenimiento-secreta" class="edit-grid" style="padding:0; background:transparent;"></div>
+            </div>
+
+            <div class="edit-grid" id="contenedor-mantenimiento-tropas"></div>
+        </details>
+
+        <div class="consola-log" id="terminal-consola">> Tienda de la Manada v2.0 en línea. Mercado sincronizado...</div>
+    </div>
+
+    <script>
+        const TROPAS_DEFAULT = {
+            beastars: {
+                nombre: "Tropa Beastars",
+                costoDesc: "1 Moneda",
+                productoDesc: "+2 Puntos E.G.O.",
+                integrantes: [
+                    { nombre: "Gouhin", mensaje: "Sanación del Terapeuta", efecto: "Sana 1 HP de una Condición Curable." },
+                    { nombre: "Haru", mensaje: "Vínculo de Jardín", efecto: "Recupera +2 de Mood." },
+                    { nombre: "Louis", mensaje: "Orgullo del Venado", efecto: "+1.0 de EXP Extra en tu siguiente Caza." },
+                    { nombre: "Juno", mensaje: "Danza de la Lobita", efecto: "Reduce -2 de Estrés." }
+                ]
+            },
+            zzz: {
+                nombre: "Tropa Zenless Zone Zero",
+                costoDesc: "1 Moneda",
+                productoDesc: "+2 Energía",
+                integrantes: [
+                    { nombre: "Anby", mensaje: "Sintonía de Hamburguesa", efecto: "Recupera +1 Energía Extra." },
+                    { nombre: "Belle", mensaje: "Soporte de la Cueva", efecto: "Reduce 2 Ticks de Cooldown a un E.G.O." },
+                    { nombre: "Koleda", mensaje: "Impacto Belobog", efecto: "Ejecuta 1 Caza consumiendo solo 2 Ticks." },
+                    { nombre: "Corin", mensaje: "Limpieza Impecable", efecto: "Evita la pérdida de Triage en la siguiente falla." }
+                ]
+            },
+            limbus: {
+                nombre: "Tropa Limbus Company",
+                costoDesc: "1 Moneda",
+                productoDesc: "-2 Estrés",
+                integrantes: [
+                    { nombre: "Gregor", mensaje: "Brazo Mutado", efecto: "Absorbe -1 de Estrés adicional." },
+                    { nombre: "Heathcliff", mensaje: "Golpe de Furia", efecto: "+1.0 EXP Extra en Caza." },
+                    { nombre: "Sinclair", mensaje: "Resonancia Emocional", efecto: "Recupera +2 de Mood." },
+                    { nombre: "Dante", mensaje: "Retroceso del Reloj", efecto: "Resta 3 Ticks de Cooldown a un E.G.O." }
+                ]
+            }
+        };
+
+        const TIENDA_SECRETA_DEFAULT = {
+            pascal: {
+                nombre: "Pascal - Guardián del Abismo",
+                costoDesc: "1 Moneda Irrompible",
+                costoTipo: "irrompibles", costoVal: 1,
+                efecto: "Obtén 2 Objetos en tu Mochila Táctica."
+            },
+            cercal: {
+                nombre: "Cercal - Sombra del Alfa",
+                costoDesc: "1 Moneda + 1 Evento Positivo",
+                costoTipo: "moneda_evento", costoVal: 1,
+                efecto: "+3 Ticks en tu Tiempo Remanente."
+            },
+            beatrice: {
+                nombre: "Beatrice - Bruja Dorada",
+                costoDesc: "1 Moneda Irrompible",
+                costoTipo: "irrompibles", costoVal: 1,
+                efecto: "+2 Eventos Positivos Asegurados y cambia el Triage a VERDE durante 2 turnos."
+            },
+            tanni: {
+                nombre: "Tanni - Hada Guía",
+                costoDesc: "2 Monedas",
+                costoTipo: "monedas", costoVal: 2,
+                efecto: "Disminuye 12 Ticks de Cooldown a TODOS los Nodos E.G.O."
+            }
+        };
+
+        let state = {
+            recursos: { monedas: 3, irrompibles: 1, eventos: 2 },
+            stockRotativo: {},
+            golpesSuerte: {},
+            tropasActivasHoy: [],
+            integranteOcultoMapa: {},
+            modoSecretoActivo: false,
+            tiendaSecreta: {},
+            tropas: {},
+            fotos: {}
+        };
+
+        function cargarTiendaLocal() {
+            const cache = localStorage.getItem('tienda_manada_v2_state');
+            if (cache) {
+                state = JSON.parse(cache);
+                if (!state.tiendaSecreta || Object.keys(state.tiendaSecreta).length === 0) {
+                    state.tiendaSecreta = JSON.parse(JSON.stringify(TIENDA_SECRETA_DEFAULT));
+                }
+            } else {
+                state.tropas = JSON.parse(JSON.stringify(TROPAS_DEFAULT));
+                state.tiendaSecreta = JSON.parse(JSON.stringify(TIENDA_SECRETA_DEFAULT));
+                pasarElDia();
+            }
+            if (!state.tropasActivasHoy || state.tropasActivasHoy.length === 0) pasarElDia();
+            actualizarUI();
+        }
+
+        function guardarEnDisco() {
+            localStorage.setItem('tienda_manada_v2_state', JSON.stringify(state));
+        }
+
+        function imprimirLog(texto) {
+            const t = document.getElementById('terminal-consola');
+            t.innerText += "\n> " + texto; t.scrollTop = t.scrollHeight;
+        }
+
+        function toggleNotaCanjes() {
+            const box = document.getElementById('nota-canjes-box');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function modificarRecurso(tipo, delta) {
+            state.recursos[tipo] = Math.max(0, (state.recursos[tipo] || 0) + delta);
+            actualizarUI();
+            guardarEnDisco();
+        }
+
+        function restablecerStockManual() {
+            if (confirm("¿Restablecer a 3/3 el Stock de todas las tiendas rotativas de hoy?")) {
+                state.tropasActivasHoy.forEach(clave => {
+                    state.stockRotativo[clave] = 3;
+                });
+                imprimirLog("🔄 STOCK ROTATIVO RESTABLECIDO: Todas las tiendas rotativas tienen 3/3 unidades.");
+                guardarEnDisco();
+                actualizarUI();
+            }
+        }
+
+        function pasarElDia() {
+            let claves = Object.keys(state.tropas);
+            if (claves.length === 0) return;
+
+            let barajadas = [...claves].sort(() => 0.5 - Math.random());
+            state.tropasActivasHoy = barajadas.slice(0, Math.min(3, barajadas.length));
+
+            state.stockRotativo = {};
+            state.golpesSuerte = {};
+            state.integranteOcultoMapa = {};
+
+            state.tropasActivasHoy.forEach(clave => {
+                state.stockRotativo[clave] = 3; // LÍMITE DE STOCK DIARIO DE 3 UNIDADES
+                state.golpesSuerte[clave] = 0;
+                let numIntegrantes = state.tropas[clave].integrantes.length;
+                state.integranteOcultoMapa[clave] = Math.floor(Math.random() * numIntegrantes);
+            });
+
+            // ROLL TIENDA SECRETA: 1/10 PROBABILIDAD (10%)
+            let tiradaSecreta = Math.floor(Math.random() * 10) + 1; // 1 a 10
+            state.modoSecretoActivo = (tiradaSecreta === 1);
+
+            if (state.modoSecretoActivo) {
+                alert("👁️ ¡INVASIÓN DETECTADA!: La Tienda Secreta de la Manada ha reemplazado a la Tienda del Batallón hoy.");
+                imprimirLog("👁️ ALERTA: Probabilidad 1/10 cumplida. La TIENDA SECRETA está activa hoy.");
+            } else {
+                imprimirLog("☀️ Has pasado el día. El Mercado Rotativo y la Tienda del Batallón se han actualizado.");
+            }
+
+            actualizarUI();
+            guardarEnDisco();
+        }
+
+        function comprarEnTiendaRotativa(claveTropa, usarIrrompible) {
+            let stockActual = state.stockRotativo[claveTropa] !== undefined ? state.stockRotativo[claveTropa] : 3;
+            if (stockActual <= 0) {
+                alert("⚠️ STOCK AGOTADO: Esta tienda rotativa ha alcanzado su límite diario de 3 compras.");
+                return;
+            }
+
+            let tipoMoneda = usarIrrompible ? 'irrompibles' : 'monedas';
+            if (state.recursos[tipoMoneda] < 1) {
+                alert(`No tienes suficientes ${usarIrrompible ? 'Monedas Irrompibles' : 'Monedas'}.`);
+                return;
+            }
+
+            state.recursos[tipoMoneda]--;
+            state.stockRotativo[claveTropa] = stockActual - 1; // REDUCIR STOCK
+            
+            let info = state.tropas[claveTropa];
+            imprimirLog(`Compra realizada en [${info.nombre}]: Obtienes [${info.productoDesc}]. Stock restante: ${state.stockRotativo[claveTropa]}/3.`);
+
+            let exito = usarIrrompible || (Math.random() < 0.5);
+
+            if (exito) {
+                state.golpesSuerte[claveTropa] = (state.golpesSuerte[claveTropa] || 0) + 1;
+                imprimirLog(`🎲 ¡CARA! Ganas +1 Golpe de Suerte exclusivo para [${info.nombre}].`);
+            } else {
+                imprimirLog(`🎲 Cruz... "Inténtalo la próxima vez".`);
+            }
+
+            actualizarUI();
+            guardarEnDisco();
+        }
+
+        function usarGolpeSuerte(claveTropa, indexIntegrante) {
+            if ((state.golpesSuerte[claveTropa] || 0) < 1) {
+                alert("No tienes Golpes de Suerte acumulados en esta tienda hoy.");
+                return;
+            }
+
+            state.golpesSuerte[claveTropa]--;
+            let sujeto = state.tropas[claveTropa].integrantes[indexIntegrante];
+            imprimirLog(`⚡ ¡GOLPE DE SUERTE! [${sujeto.nombre}] dice: "${sujeto.mensaje}" -> Efecto: [${sujeto.efecto}]`);
+
+            actualizarUI();
+            guardarEnDisco();
+        }
+
+        function canjearBatallon(miembro, tipoRecurso, costo, producto) {
+            if (state.recursos[tipoRecurso] < costo) {
+                alert(`No tienes suficientes ${tipoRecurso}.`);
+                return;
+            }
+            state.recursos[tipoRecurso] -= costo;
+            imprimirLog(`🛡️ Batallón [${miembro}]: Canjeado ${costo} ${tipoRecurso} por [${producto}].`);
+            actualizarUI();
+            guardarEnDisco();
+        }
+
+        function canjearSecreta(claveSujeto) {
+            let info = state.tiendaSecreta[claveSujeto];
+            if (!info) return;
+
+            if (info.costoTipo === "irrompibles") {
+                if (state.recursos.irrompibles < info.costoVal) { alert("Sin Monedas Irrompibles suficientes."); return; }
+                state.recursos.irrompibles -= info.costoVal;
+            } else if (info.costoTipo === "monedas") {
+                if (state.recursos.monedas < info.costoVal) { alert("Sin Monedas suficientes."); return; }
+                state.recursos.monedas -= info.costoVal;
+            } else if (info.costoTipo === "moneda_evento") {
+                if (state.recursos.monedas < 1 || state.recursos.eventos < 1) { alert("Requiere 1 Moneda + 1 Evento Positivo."); return; }
+                state.recursos.monedas -= 1;
+                state.recursos.eventos -= 1;
+            }
+
+            imprimirLog(`👁️ CANJE SECRETO [${info.nombre}]: Pagado [${info.costoDesc}] ➔ Efecto: [${info.efecto}].`);
+            actualizarUI();
+            guardarEnDisco();
+        }
+
+        function procesarFotoBase64(input, llaveFoto) {
+            const archivo = input.files[0];
+            if (archivo) {
+                const lector = new FileReader();
+                lector.onload = function(e) {
+                    state.fotos[llaveFoto] = e.target.result;
+                    guardarEnDisco();
+                    actualizarUI();
+                    imprimirLog(`Render guardado: [${llaveFoto}].`);
+                };
+                lector.readAsDataURL(archivo);
+            }
+        }
+
+        function actualizarUI() {
+            document.getElementById('val-monedas').innerText = state.recursos.monedas || 0;
+            document.getElementById('val-irrompibles').innerText = state.recursos.irrompibles || 0;
+            document.getElementById('val-eventos').innerText = state.recursos.eventos || 0;
+
+            renderizarTiendasRotativas();
+            renderizarModuloInferior();
+            renderizarMantenimiento();
+        }
+
+        function renderizarTiendasRotativas() {
+            const root = document.getElementById('contenedor-tiendas-rotativas');
+            root.innerHTML = '';
+
+            state.tropasActivasHoy.forEach(clave => {
+                let info = state.tropas[clave];
+                if (!info) return;
+
+                let stockCur = state.stockRotativo[clave] !== undefined ? state.stockRotativo[clave] : 3;
+                let golpes = state.golpesSuerte[clave] || 0;
+                let idxOculto = state.integranteOcultoMapa[clave];
+                let srcFoto = state.fotos[clave];
+
+                let div = document.createElement('div');
+                div.className = 'tarjeta-tienda';
+
+                let htmlFoto = srcFoto 
+                    ? `<img src="${srcFoto}" class="foto-banner">` 
+                    : `<div style="font-family:var(--fuente-hud); font-size:0.75rem; color:#4a5568; text-align:center;">Render Tropa<br>[${clave.toUpperCase()}]</div>`;
+
+                let htmlIntegrantes = '';
+                info.integrantes.forEach((ing, idx) => {
+                    let esOculto = (idx === idxOculto);
+                    let nombreAMostrar = esOculto ? '❓ [??? - Integrante Oculto]' : ing.nombre;
+                    let msgAMostrar = esOculto ? 'Misterio de la Manada' : ing.mensaje;
+                    let efAMostrar = esOculto ? 'Revela para obtener su beneficio' : ing.efecto;
+
+                    htmlIntegrantes += `
+                        <div class="card-integrante" style="${esOculto ? 'border-color:var(--amarillo-mood);' : ''}">
+                            <strong style="color:${esOculto ? 'var(--amarillo-mood)' : 'var(--verde-suerte)'};">${nombreAMostrar}</strong>
+                            <div style="font-size:0.7rem; color:#a0aec0;">"${msgAMostrar}"</div>
+                            <div style="font-size:0.7rem; color:#fff;">Efecto: ${efAMostrar}</div>
+                            <button class="btn-activar-efecto" ${golpes < 1 ? 'disabled' : ''} onclick="usarGolpeSuerte('${clave}', ${idx})">
+                                Activar Efecto (Requiere 1 Golpe Suerte)
+                            </button>
+                        </div>
+                    `;
+                });
+
+                let isAgotado = stockCur <= 0;
+                let stockBadgeClass = isAgotado ? 'stock-badge agotado' : 'stock-badge';
+                let stockTxt = isAgotado ? 'STOCK AGOTADO (0/3)' : `Stock Disponible: ${stockCur}/3`;
+
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-family:var(--fuente-hud); font-size:1.1rem; font-weight:bold; color:var(--verde-suerte);">${info.nombre}</span>
+                        <span class="${stockBadgeClass}">${stockTxt}</span>
+                    </div>
+                    <div class="contenedor-banner">
+                        ${htmlFoto}
+                        <input type="file" style="position:absolute; bottom:2px; right:2px; font-size:0.6rem;" accept="image/*" onchange="procesarFotoBase64(this, '${clave}')">
+                    </div>
+                    <div class="compra-box">
+                        <div style="font-size:0.8rem;">Costo: <strong>${info.costoDesc}</strong> -> <strong>${info.productoDesc}</strong></div>
+                        <div style="font-size:0.75rem; color:var(--verde-suerte); margin-top:2px;">Golpes de Suerte Hoy: ${golpes}</div>
+                        <button class="btn-comprar" ${isAgotado ? 'disabled' : ''} onclick="comprarEnTiendaRotativa('${clave}', false)">Comprar con Moneda Normal (50/50)</button>
+                        <button class="btn-comprar" ${isAgotado ? 'disabled' : ''} style="border-color:var(--azul-ego); color:var(--azul-ego); margin-top:4px;" onclick="comprarEnTiendaRotativa('${clave}', true)">Comprar con Moneda Irrompible (100% Cara)</button>
+                    </div>
+                    <div class="lista-integrantes">${htmlIntegrantes}</div>
+                `;
+
+                root.appendChild(div);
+            });
+        }
+
+        function renderizarModuloInferior() {
+            const root = document.getElementById('contenedor-tienda-inferior');
+            root.innerHTML = '';
+
+            if (state.modoSecretoActivo) {
+                // TIENDA SECRETA
+                root.className = 'tienda-batallon tienda-secreta-active';
+                
+                let srcFoto = state.fotos['secreta_banner'];
+                let htmlFoto = srcFoto 
+                    ? `<img src="${srcFoto}" class="foto-banner">` 
+                    : `<div style="font-family:var(--fuente-hud); font-size:0.7rem; color:var(--morado-secreto); text-align:center;">Render Secreto<br>[SECRETA]</div>`;
+
+                let htmlMiembros = '';
+                Object.keys(state.tiendaSecreta).forEach(claveSujeto => {
+                    let s = state.tiendaSecreta[claveSujeto];
+                    htmlMiembros += `
+                        <div class="card-batallon-miembro" style="border-color:var(--morado-secreto); background:#0c0414;">
+                            <strong style="color:var(--morado-secreto);">${s.nombre}</strong>
+                            <div style="font-size:0.75rem; color:#a0aec0; margin:4px 0;">Costo: "${s.costoDesc}"</div>
+                            <div style="font-size:0.7rem; color:#fff; margin-bottom:6px;">Efecto: ${s.efecto}</div>
+                            <button class="btn-sistema" style="border-color:var(--morado-secreto); color:var(--morado-secreto);" onclick="canjearSecreta('${claveSujeto}')">Canjear (${s.costoDesc})</button>
+                        </div>
+                    `;
+                });
+
+                root.innerHTML = `
+                    <h3 style="margin-top:0; font-family:var(--fuente-hud); color:var(--morado-secreto); border-bottom:1px solid var(--morado-secreto); padding-bottom:5px;">👁️ TIENDA SECRETA DE LA MANADA (Invasión Activa 10%)</h3>
+                    <div class="batallon-layout">
+                        <div class="contenedor-banner" style="width:200px; height:140px; border-color:var(--morado-secreto);">
+                            ${htmlFoto}
+                            <input type="file" style="position:absolute; bottom:2px; right:2px; font-size:0.6rem;" accept="image/*" onchange="procesarFotoBase64(this, 'secreta_banner')">
+                        </div>
+                        <div class="grid-batallon-miembros">${htmlMiembros}</div>
+                    </div>
+                `;
+
+            } else {
+                // TIENDA DEL BATALLÓN ESTÁNDAR
+                root.className = 'tienda-batallon';
+
+                let srcFoto = state.fotos['batallon'];
+                let htmlFoto = srcFoto 
+                    ? `<img src="${srcFoto}" class="foto-banner">` 
+                    : `<div style="font-family:var(--fuente-hud); font-size:0.7rem; color:#4a5568; text-align:center;">Render Batallón<br>[BATALLON]</div>`;
+
+                root.innerHTML = `
+                    <h3 style="margin-top:0; font-family:var(--fuente-hud); color:var(--amarillo-mood); border-bottom:1px solid var(--borde); padding-bottom:5px;">🛡️ TIENDA DEL BATALLÓN (Canjes Directos 100% Garantizados)</h3>
+                    <div class="batallon-layout">
+                        <div class="contenedor-banner" style="width:200px; height:140px;">
+                            ${htmlFoto}
+                            <input type="file" style="position:absolute; bottom:2px; right:2px; font-size:0.6rem;" accept="image/*" onchange="procesarFotoBase64(this, 'batallon')">
+                        </div>
+                        <div class="grid-batallon-miembros">
+                            <div class="card-batallon-miembro">
+                                <strong style="color:var(--verde-suerte);">Pascal</strong>
+                                <div style="font-size:0.75rem; color:#a0aec0; margin:4px 0;">"1 Moneda -> 1 Objeto"</div>
+                                <button class="btn-sistema" onclick="canjearBatallon('Pascal', 'monedas', 1, '1 Objeto')">Canjear (1 Moneda)</button>
+                            </div>
+                            <div class="card-batallon-miembro">
+                                <strong style="color:var(--azul-ego);">Cercal</strong>
+                                <div style="font-size:0.75rem; color:#a0aec0; margin:4px 0;">"1 Moneda -> 1 Tick"</div>
+                                <button class="btn-sistema" onclick="canjearBatallon('Cercal', 'monedas', 1, '1 Tick reducido')">Canjear (1 Moneda)</button>
+                            </div>
+                            <div class="card-batallon-miembro">
+                                <strong style="color:var(--amarillo-mood);">Beatrice</strong>
+                                <div style="font-size:0.75rem; color:#a0aec0; margin:4px 0;">"1 Evento -> +1 Energía"</div>
+                                <button class="btn-sistema" onclick="canjearBatallon('Beatrice', 'eventos', 1, '+1 Energía')">Canjear (1 Evento)</button>
+                            </div>
+                            <div class="card-batallon-miembro">
+                                <strong style="color:var(--rojo-alerta);">Tanni</strong>
+                                <div style="font-size:0.75rem; color:#a0aec0; margin:4px 0;">"1 Evento -> -1 Estrés"</div>
+                                <button class="btn-sistema" onclick="canjearBatallon('Tanni', 'eventos', 1, '-1 Estrés')">Canjear (1 Evento)</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function crearNuevaTropa() {
+            let id = document.getElementById('new-tropa-id').value.trim().toLowerCase();
+            let nom = document.getElementById('new-tropa-nombre').value.trim();
+            let costo = document.getElementById('new-tropa-costo').value.trim();
+            let prod = document.getElementById('new-tropa-producto').value.trim();
+
+            if (!id || !nom) { alert("Ingresa ID y Nombre."); return; }
+
+            state.tropas[id] = {
+                nombre: nom,
+                costoDesc: costo || "1 Moneda",
+                productoDesc: prod || "+1 Recurso",
+                integrantes: [
+                    { nombre: "Integrante 1", mensaje: "Mensaje 1", efecto: "Efecto 1" },
+                    { nombre: "Integrante 2", mensaje: "Mensaje 2", efecto: "Efecto 2" },
+                    { nombre: "Integrante 3", mensaje: "Mensaje 3", efecto: "Efecto 3" },
+                    { nombre: "Integrante 4", mensaje: "Mensaje 4", efecto: "Efecto 4" }
+                ]
+            };
+
+            guardarEnDisco();
+            actualizarUI();
+            imprimirLog(`Nueva tropa registrada: [${nom}].`);
+        }
+
+        function eliminarTropa(clave) {
+            if (confirm(`¿Eliminar la tropa [${clave}] de la Tienda?`)) {
+                delete state.tropas[clave];
+                guardarEnDisco();
+                actualizarUI();
+            }
+        }
+
+        function renderizarMantenimiento() {
+            // RENDERIZADO DE EDICIÓN TIENDA SECRETA
+            const rootSec = document.getElementById('contenedor-mantenimiento-secreta');
+            rootSec.innerHTML = '';
+            Object.keys(state.tiendaSecreta).forEach(claveSujeto => {
+                let info = state.tiendaSecreta[claveSujeto];
+                let div = document.createElement('div');
+                div.className = 'edit-card';
+                div.style.borderColor = "var(--morado-secreto)";
+                div.innerHTML = `
+                    <strong style="color:var(--morado-secreto);">${claveSujeto.toUpperCase()} (SECRETO)</strong>
+                    <label>Nombre:</label>
+                    <input type="text" id="ed-sec-nom-${claveSujeto}" value="${info.nombre}">
+                    <label>Costo Desc:</label>
+                    <input type="text" id="ed-sec-cd-${claveSujeto}" value="${info.costoDesc}">
+                    <label>Efecto:</label>
+                    <textarea id="ed-sec-ef-${claveSujeto}" rows="2">${info.efecto}</textarea>
+                    <button onclick="guardarEdicionSecreta('${claveSujeto}')" style="width:100%; background:var(--morado-secreto); border:none; color:#fff; font-weight:bold; margin-top:6px; padding:4px; cursor:pointer;">✓ Guardar Secreto</button>
+                `;
+                rootSec.appendChild(div);
+            });
+
+            // RENDERIZADO DE EDICIÓN TROPAS ROTATIVAS
+            const root = document.getElementById('contenedor-mantenimiento-tropas');
+            root.innerHTML = '';
+
+            Object.keys(state.tropas).forEach(clave => {
+                let info = state.tropas[clave];
+                let div = document.createElement('div');
+                div.className = 'edit-card';
+
+                let htmlInputsIng = '';
+                info.integrantes.forEach((ing, i) => {
+                    htmlInputsIng += `
+                        <div style="margin-top:4px; border-top:1px solid #1a233a; padding-top:2px;">
+                            <strong>Integrante ${i+1}:</strong>
+                            <input type="text" id="ed-ing-n-${clave}-${i}" value="${ing.nombre}">
+                            <input type="text" id="ed-ing-m-${clave}-${i}" value="${ing.mensaje}">
+                            <input type="text" id="ed-ing-e-${clave}-${i}" value="${ing.efecto}">
+                        </div>
+                    `;
+                });
+
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; color:var(--verde-suerte);">
+                        <strong>${clave.toUpperCase()}</strong>
+                        <button onclick="eliminarTropa('${clave}')" style="background:none; border:none; color:red; cursor:pointer;">X</button>
+                    </div>
+                    <label>Nombre Tropa:</label>
+                    <input type="text" id="ed-tr-n-${clave}" value="${info.nombre}">
+                    <label>Costo Desc:</label>
+                    <input type="text" id="ed-tr-c-${clave}" value="${info.costoDesc}">
+                    <label>Producto Desc:</label>
+                    <input type="text" id="ed-tr-p-${clave}" value="${info.productoDesc}">
+                    ${htmlInputsIng}
+                    <button onclick="guardarEdicionTropa('${clave}')" style="width:100%; background:var(--verde-suerte); border:none; margin-top:6px; padding:4px; cursor:pointer;">✓ Guardar Ajustes</button>
+                `;
+
+                root.appendChild(div);
+            });
+        }
+
+        function guardarEdicionSecreta(claveSujeto) {
+            let info = state.tiendaSecreta[claveSujeto];
+            if (info) {
+                info.nombre = document.getElementById(`ed-sec-nom-${claveSujeto}`).value.trim() || info.nombre;
+                info.costoDesc = document.getElementById(`ed-sec-cd-${claveSujeto}`).value.trim() || info.costoDesc;
+                info.efecto = document.getElementById(`ed-sec-ef-${claveSujeto}`).value.trim() || info.efecto;
+                guardarEnDisco();
+                actualizarUI();
+                alert("Ajustes de Tienda Secreta guardados.");
+            }
+        }
+
+        function guardarEdicionTropa(clave) {
+            let info = state.tropas[clave];
+            if (info) {
+                info.nombre = document.getElementById(`ed-tr-n-${clave}`).value.trim() || info.nombre;
+                info.costoDesc = document.getElementById(`ed-tr-c-${clave}`).value.trim() || info.costoDesc;
+                info.productoDesc = document.getElementById(`ed-tr-p-${clave}`).value.trim() || info.productoDesc;
+
+                info.integrantes.forEach((ing, i) => {
+                    ing.nombre = document.getElementById(`ed-ing-n-${clave}-${i}`).value.trim() || ing.nombre;
+                    ing.mensaje = document.getElementById(`ed-ing-m-${clave}-${i}`).value.trim() || ing.mensaje;
+                    ing.efecto = document.getElementById(`ed-ing-e-${clave}-${i}`).value.trim() || ing.efecto;
+                });
+
+                guardarEnDisco();
+                actualizarUI();
+                alert("Ajustes de Tropa guardados.");
+            }
+        }
+
+        function exportarDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Tienda_Manada_Backup_${Date.now()}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importarDataJSON(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let parsed = JSON.parse(e.target.result);
+                        if (parsed.tropas) {
+                            state = parsed;
+                            guardarEnDisco();
+                            actualizarUI();
+                            alert("¡Data de la Tienda restaurada con éxito!");
+                        }
+                    } catch(err) { alert("Archivo JSON no válido."); }
+                };
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        cargarTiendaLocal();
+    </script>
+</body>
+</html>

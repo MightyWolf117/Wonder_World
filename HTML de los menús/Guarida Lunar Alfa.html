@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guarida Lunar Alfa v2.1 - Módulo de Ocio</title>
+    <style>
+        :root {
+            --bg-principal: #050b14;
+            --bg-tarjeta: #0d1612;
+            --borde: #3c2f25;
+            --azul-ego: #00d9ff;
+            --verde-triage: #00ff66;
+            --rojo-frenesi: #ff3333;
+            --amarillo-mood: #ffcc00;
+            --texto-plata: #cbd5e1;
+            --fuente-hud: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-plata);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contenedor { max-width: 1100px; width: 100%; }
+
+        header {
+            border-bottom: 2px solid var(--borde);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { margin: 0; color: var(--texto-plata); font-size: 1.5rem; letter-spacing: 2px; font-family: var(--fuente-hud); font-weight: bold; }
+        .subtitulo { margin: 3px 0 0 0; color: #5a6e72; font-size: 0.8rem; font-family: var(--fuente-hud); }
+
+        .panel-habitat {
+            background-color: #04080e;
+            border: 2px solid var(--borde);
+            border-radius: 4px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        }
+
+        .habitat-info { display: flex; align-items: center; gap: 15px; font-family: var(--fuente-hud); }
+        .habitat-badge { padding: 4px 8px; border-radius: 2px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; }
+        .badge-santuario { background: rgba(0, 255, 102, 0.15); color: var(--verde-triage); border: 1px solid var(--verde-triage); }
+        .badge-habitable { background: rgba(255, 204, 0, 0.15); color: var(--amarillo-mood); border: 1px solid var(--amarillo-mood); }
+        .badge-contaminado { background: rgba(255, 51, 51, 0.15); color: var(--rojo-frenesi); border: 1px solid var(--rojo-frenesi); box-shadow: 0 0 8px rgba(255,51,51,0.3); }
+
+        .barra-limpieza-bg { background: #111a16; border: 1px solid var(--borde); width: 140px; height: 12px; border-radius: 2px; overflow: hidden; position: relative; }
+        .barra-limpieza-fill { height: 100%; width: 100%; background: var(--verde-triage); transition: width 0.3s, background-color 0.3s; }
+
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
+
+        .panel { background-color: var(--bg-tarjeta); border: 1px solid var(--borde); padding: 18px; border-radius: 4px; height: fit-content; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        h2 { font-size: 0.9rem; margin-top: 0; border-left: 3px solid var(--texto-plata); padding-left: 8px; font-family: var(--fuente-hud); text-transform: uppercase; letter-spacing: 1px; color: #fff; }
+
+        .terminal-log { background-color: #03060a; border: 1px solid var(--borde); padding: 10px; font-family: var(--fuente-hud); font-size: 0.75rem; color: #8a9a86; max-height: 90px; overflow-y: auto; margin-top: 15px; border-left: 3px solid var(--verde-triage); }
+
+        .pool-visual { display: flex; gap: 6px; flex-wrap: wrap; background: #03060a; border: 1px dashed var(--borde); padding: 12px; min-height: 30px; align-items: center; border-radius: 4px; margin-bottom: 12px; }
+        .nota-token { background: #18261f; border: 1px solid var(--borde); color: #fff; padding: 3px 8px; font-family: var(--fuente-hud); font-weight: bold; border-radius: 2px; font-size: 0.85rem; }
+
+        .btn { background: #070d14; border: 1px solid var(--borde); color: var(--texto-plata); padding: 6px 10px; font-family: var(--fuente-hud); font-size: 0.75rem; font-weight: bold; cursor: pointer; border-radius: 2px; transition: all 0.15s ease; }
+        .btn:hover { border-color: var(--texto-plata); background: #132219; }
+        .btn-inj { border-color: #24362b; color: #8da396; }
+        .btn-inj:hover { color: #fff; border-color: var(--verde-triage); }
+
+        .wrapper-cadena { display: flex; gap: 6px; margin-bottom: 12px; background: #03060a; padding: 6px; border: 1px solid var(--borde); border-radius: 2px; }
+        .input-cadena { background: transparent; border: none; color: var(--verde-triage); font-family: var(--fuente-hud); font-size: 0.8rem; flex: 1; outline: none; }
+
+        .contenedor-reloj { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
+        .reloj-face {
+            width: 380px; height: 380px;
+            background: #04080e;
+            border: 4px solid var(--borde);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+        }
+        
+        .reloj-hand {
+            width: 4px; height: 135px;
+            background: var(--texto-plata);
+            position: absolute;
+            left: calc(50% - 2px); top: 55px;
+            transform-origin: bottom center;
+            transform: rotate(0deg);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 5;
+        }
+        .reloj-center { width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; left: calc(50% - 6px); top: calc(50% - 6px); z-index: 6; }
+
+        .sector-hora {
+            position: absolute;
+            width: 110px; height: 45px;
+            transform-origin: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--fuente-hud);
+            font-size: 0.72rem;
+            color: #3d4a41;
+            text-align: center;
+            cursor: not-allowed;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            border: 1px solid transparent;
+        }
+
+        .sector-iluminado { color: var(--texto-plata); text-shadow: 0 0 6px rgba(255,255,255,0.3); cursor: pointer; border-color: rgba(203,213,225,0.1); background: rgba(203,213,225,0.01); }
+        .sector-iluminado:hover { border-color: var(--azul-ego); background: rgba(0,217,255,0.04); text-shadow: 0 0 6px var(--azul-ego); }
+        .sector-bloqueado { color: #6e2626 !important; background: rgba(255,51,51,0.03) !important; border-color: rgba(255,51,51,0.2) !important; text-shadow: none !important; cursor: not-allowed !important; }
+        .sector-filtrado-resaltado { border-color: var(--amarillo-mood) !important; background: rgba(255,204,0,0.05) !important; color: var(--amarillo-mood) !important; }
+
+        .btn-lock-toggle {
+            font-size: 0.55rem;
+            padding: 1px 4px;
+            background: #0b1410;
+            border: 1px solid var(--borde);
+            color: var(--verde-triage);
+            cursor: pointer;
+            margin-top: 2px;
+            border-radius: 2px;
+            font-family: var(--fuente-hud);
+            font-weight: bold;
+        }
+        .btn-lock-toggle.locked { color: var(--rojo-frenesi); border-color: var(--rojo-frenesi); background: #1c0a0a; }
+
+        details { background: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 4px; width: 100%; margin-top: 10px; }
+        summary { padding: 10px; font-family: var(--fuente-hud); font-size: 0.8rem; font-weight: bold; color: var(--texto-plata); cursor: pointer; user-select: none; }
+        summary:hover { background: #111d18; }
+        .codice-contenido { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; padding: 12px; border-top: 1px solid var(--borde); background: #03060a; font-family: var(--fuente-hud); font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <div>
+                <h1>GUARIDA LUNAR ALFA</h1>
+                <div class="subtitulo">Terminal de Relajación Táctica v2.1</div>
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button class="btn" onclick="exportarDataJSON()" style="color:var(--azul-ego); border-color:var(--azul-ego);">📥 Exportar</button>
+                <button class="btn" onclick="document.getElementById('input-json-import').click()">📤 Importar</button>
+                <input type="file" id="input-json-import" accept=".json" style="display:none;" onchange="importarDataJSON(this)">
+                <button class="btn" onclick="deshacer()" style="color:var(--amarillo-mood); border-color: #5e4a1c;">↶ Deshacer</button>
+            </div>
+        </header>
+
+        <div class="panel-habitat">
+            <div class="habitat-info">
+                <div>
+                    <div style="font-size:0.65rem; color:#5a6e72; font-weight:bold; text-transform:uppercase;">Estado del Hábitat</div>
+                    <div id="display-habitat-status" class="habitat-badge badge-santuario">SANTUARIO IMPECABLE</div>
+                </div>
+                <div>
+                    <div style="font-size:0.65rem; color:#5a6e72; font-weight:bold; text-transform:uppercase;">Nivel de Limpieza (<span id="txt-limpieza-val">5</span>/5)</div>
+                    <div class="barra-limpieza-bg"><div class="barra-limpieza-fill" id="fill-limpieza-bar"></div></div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:6px; align-items:center;">
+                <button class="btn" onclick="modificarLimpiezaManual(1)" style="color:var(--verde-triage);">+1 Limpieza</button>
+                <button class="btn" onclick="modificarLimpiezaManual(-1)" style="color:var(--rojo-frenesi);">-1 Limpieza</button>
+                <button class="btn" onclick="pasarDiaOcio()" style="color:#fff; border-color:var(--azul-ego); background:rgba(0,217,255,0.05); margin-left:10px;">⏳ Pasar el Día</button>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <div class="panel">
+                <h2>🔎 Búsqueda Táctica de Frecuencias</h2>
+                <div class="wrapper-cadena">
+                    <input type="text" id="input-busqueda-filtro" class="input-cadena" placeholder="Filtrar sectores por nota... (Ej: D, Ds, O, L, S)" oninput="filtrarSectoresPorNota(this.value)">
+                </div>
+
+                <h2>Inyector por Cadena Táctica</h2>
+                <div class="wrapper-cadena">
+                    <input type="text" id="input-cadena-tactica" class="input-cadena" placeholder="Pegar Melodía del Menú... (Ej: LDCCOSSLOE)">
+                    <button class="btn" onclick="procesarCadenaTactical()">Cargar</button>
+                </div>
+
+                <h2>Inyección Manual Directa</h2>
+                <div style="display:flex; gap:4px; margin-bottom:12px; flex-wrap:wrap;">
+                    <button class="btn btn-inj" onclick="inyectarNotaManual('S')">+S</button>
+                    <button class="btn btn-inj" onclick="inyectarNotaManual('O')">+O</button>
+                    <button class="btn btn-inj" onclick="inyectarNotaManual('L')">+L</button>
+                    <button class="btn btn-inj" onclick="inyectarNotaManual('Ds')">+Ds</button>
+                    <button class="btn btn-inj" onclick="inyectarNotaManual('D')">+D</button>
+                    <button class="btn" onclick="limpiarTodoPool()" style="color:var(--rojo-frenesi); border-color:#521a1a; margin-left:auto;">Reset Pool</button>
+                </div>
+
+                <h2>Búfer de Frecuencias Disponibles Hoy</h2>
+                <div class="pool-visual" id="contenedor-pool-visual">- Sin frecuencias en el inventario.</div>
+
+                <h2>Módulo de Alquimia de S (Fisión)</h2>
+                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
+                    <button class="btn" onclick="disolverS('O')">⚡ S ➔ 1 O</button>
+                    <button class="btn" onclick="disolverS('L')">⚡ S ➔ 2 L</button>
+                    <button class="btn" onclick="disolverS('Ds')">⚡ S ➔ 2 Ds</button>
+                    <button class="btn" onclick="disolverS('D')">⚡ S ➔ 3 D</button>
+                </div>
+
+                <div class="terminal-log" id="consola-la-guarida">> Terminal v2.1 en línea. Hábitat sincronizado...</div>
+            </div>
+
+            <div class="panel" style="display:flex; flex-direction:column; align-items:center;">
+                <h2>El Astrolabio de la Manada</h2>
+                <div class="contenedor-reloj">
+                    <div class="reloj-face" id="pack-clock-face">
+                        <div class="reloj-hand" id="pack-clock-needle"></div>
+                        <div class="reloj-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <details>
+            <summary>📖 CÓDICE DE COSTES Y FRECUENCIAS DE LA GUARIDA</summary>
+            <div class="codice-contenido" id="lista-codice-ui"></div>
+        </details>
+    </div>
+
+    <script>
+        // JERARQUÍA REFORMADA: JUGAR, SOCIALIZAR Y PROYECTOS BLOQUEADOS EN LIMPIEZA 0
+        const CATALOGO_RELOJ = {
+            "XII":  { nombre: "Nada", desc: "Contemplación", costes: [ [] ], angulo: 0 },
+            "I":    { nombre: "Gruñir", desc: "Jugar corto", costes: [ ['D'], ['Ds'] ], angulo: 30, reqLimpieza: true },
+            "II":   { nombre: "Ladear la cabeza", desc: "Descansar ojos", costes: [ ['Ds'], ['D', 'D'] ], angulo: 60 },
+            "III":  { nombre: "Mover la cola", desc: "Saludar amigos", costes: [ ['L'], ['D', 'D'], ['Ds', 'D'] ], angulo: 90, reqLimpieza: true },
+            "IV":   { nombre: "Enroscarse", desc: "Jugar medio", costes: [ ['S'], ['D', 'D', 'D'], ['Ds', 'D'] ], angulo: 120, reqLimpieza: true },
+            "V":    { nombre: "Olfatearse", desc: "Limpieza simple (+1)", costes: [ ['O'], ['D', 'L'], ['Ds', 'L'] ], angulo: 150, boostLimpieza: 1 },
+            "VI":   { nombre: "Vigilar territorio", desc: "Serie / YouTube", costes: [ ['S'], ['Ds', 'D', 'D'] ], angulo: 180 },
+            "VII":  { nombre: "Afilar las garras", desc: "Aprender algo", costes: [ ['Ds', 'Ds'], ['O', 'D'] ], angulo: 210, reqLimpieza: true },
+            "VIII": { nombre: "Buscar a la manada", desc: "Jugar con amigos", costes: [ ['S', 'L'], ['S', 'Ds'], ['S', 'S'] ], angulo: 240, reqLimpieza: true },
+            "IX":   { nombre: "Lamerse heridas", desc: "Aseo profundo (+2)", costes: [ ['O', 'L'], ['O', 'Ds'], ['O', 'O'], ['Ds', 'Ds', 'L'] ], angulo: 270, boostLimpieza: 2 },
+            "X":    { nombre: "Dejar huellas", desc: "Mundo Wonder", costes: [ ['S', 'O'], ['S', 'S'] ], angulo: 300, reqLimpieza: true },
+            "XI":   { nombre: "Aullar", desc: "Jugar largo", costes: [ ['S', 'S'] ], angulo: 330, reqLimpieza: true }
+        };
+
+        let state = {
+            poolNotas: [],
+            accionesBloqueadas: {},
+            nivelLimpieza: 5,
+            impuestoDescomposicionPendiente: false
+        };
+
+        let filtroNotasBusqueda = "";
+        let historialGuarida = [];
+
+        function iniciarGuarida() {
+            const cache = localStorage.getItem('fenrir_guarida_v2_state');
+            if (cache) state = JSON.parse(cache);
+
+            renderizarSectoresReloj();
+            construirCodiceInferior();
+            actualizarUI();
+        }
+
+        function registrarPasoHistorial() {
+            if (historialGuarida.length >= 30) historialGuarida.shift();
+            historialGuarida.push(JSON.stringify(state));
+        }
+
+        function guardarEnDisco() {
+            localStorage.setItem('fenrir_guarida_v2_state', JSON.stringify(state));
+        }
+
+        function exportarDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Guarida_Alfa_Backup_${Date.now()}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importarDataJSON(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let parsed = JSON.parse(e.target.result);
+                        if (parsed.poolNotas) {
+                            registrarPasoHistorial();
+                            state = parsed;
+                            guardarEnDisco();
+                            actualizarUI();
+                            alert("¡Data de la Guarida restaurada con éxito!");
+                        }
+                    } catch(err) { alert("Archivo JSON no válido."); }
+                };
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        function registrarLog(texto) {
+            const c = document.getElementById('consola-la-guarida');
+            c.innerText += "\n> " + texto; c.scrollTop = c.scrollHeight;
+        }
+
+        function deshacer() {
+            if (historialGuarida.length > 0) {
+                state = JSON.parse(historialGuarida.pop());
+                guardarEnDisco(); actualizarUI(); registrarLog("Línea temporal revertida vía Deshacer.");
+            }
+        }
+
+        function aplicarImpuestoSiAplica() {
+            if (state.impuestoDescomposicionPendiente && state.poolNotas.length > 0) {
+                let notaRemovida = state.poolNotas.shift();
+                state.impuestoDescomposicionPendiente = false;
+                alert(`⚠️ IMPUESTO DE DESCOMPOSICIÓN: Despertar en un entorno caótico destruyó tu primera frecuencia de ocio [${notaRemovida}].`);
+                registrarLog(`[IMPUESTO DESCOMPOSICIÓN]: Frecuencia [${notaRemovida}] consumida por insalubridad.`);
+            }
+        }
+
+        function inyectarNotaManual(letra) {
+            registrarPasoHistorial();
+            state.poolNotas.push(letra);
+            aplicarImpuestoSiAplica();
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function procesarCadenaTactical() {
+            const input = document.getElementById('input-cadena-tactica');
+            let rawText = input.value.trim().toUpperCase();
+            if(!rawText) return;
+
+            registrarPasoHistorial();
+            let validas = ['S', 'O', 'L', 'Ds', 'D'];
+            let añadidasCount = 0;
+
+            for (let i = 0; i < rawText.length; i++) {
+                if (rawText[i] === 'D' && rawText[i+1] === 'S') {
+                    state.poolNotas.push('Ds'); añadidasCount++; i++;
+                } else if (validas.includes(rawText[i])) {
+                    state.poolNotas.push(rawText[i]); añadidasCount++;
+                }
+            }
+
+            registrarLog(`[INYECTOR]: Cadena decodificada (+${añadidasCount} frecuencias). C/E ignoradas.`);
+            input.value = '';
+            aplicarImpuestoSiAplica();
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function disolverS(destino) {
+            let idxS = state.poolNotas.indexOf('S');
+            if (idxS === -1) { alert("Sin notas S en el pool."); return; }
+
+            registrarPasoHistorial();
+            state.poolNotas.splice(idxS, 1);
+
+            if (destino === 'O') state.poolNotas.push('O');
+            if (destino === 'L') state.poolNotas.push('L', 'L');
+            if (destino === 'Ds') state.poolNotas.push('Ds', 'Ds');
+            if (destino === 'D') state.poolNotas.push('D', 'D', 'D');
+
+            registrarLog(`[ALQUIMIA]: S fisionada ➔ Equivalencia [${destino}].`);
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function modificarLimpiezaManual(delta) {
+            registrarPasoHistorial();
+            state.nivelLimpieza = Math.min(5, Math.max(0, state.nivelLimpieza + delta));
+            registrarLog(`[MANTENIMIENTO]: Limpieza ajustada manualmente a [${state.nivelLimpieza}/5].`);
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function pasarDiaOcio() {
+            registrarPasoHistorial();
+            state.poolNotas = [];
+
+            if (state.nivelLimpieza === 5) {
+                state.poolNotas.push('O');
+                alert("🌟 SANTUARIO IMPECABLE (5/5): Obtienes +1 Nota O (Ocio) gratuita para iniciar tu jornada.");
+            } else if (state.nivelLimpieza === 0) {
+                // Caída virtual por debajo de 0 -> Activa el impuesto para la mañana siguiente
+                state.impuestoDescomposicionPendiente = true;
+                registrarLog(`⚠️ DESCOMPOSICIÓN VIRTUAL: Limpieza se mantiene en 0. Impuesto de Descomposición programado para mañana.`);
+            }
+
+            state.nivelLimpieza = Math.max(0, state.nivelLimpieza - 1);
+            registrarLog(`⏳ PASO DEL DÍA: Pool limpiado. Limpieza actual: ${state.nivelLimpieza}/5.`);
+
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function filtrarSectoresPorNota(val) {
+            filtroNotasBusqueda = val.trim().toUpperCase();
+            actualizarUI();
+        }
+
+        function toggleBloqueoHora(romano, e) {
+            e.stopPropagation();
+            registrarPasoHistorial();
+            state.accionesBloqueadas[romano] = !state.accionesBloqueadas[romano];
+            guardarEnDisco(); actualizarUI();
+            registrarLog(`Sector [${romano}] -> [${state.accionesBloqueadas[romano] ? 'BLOQUEADO' : 'ACTIVO'}].`);
+        }
+
+        function evaluarCosteValido(costes) {
+            for (let combo of costes) {
+                if (combo.length === 0) continue;
+                let copiaPool = [...state.poolNotas];
+                let sePuede = true;
+                for (let nota of combo) {
+                    let idx = copiaPool.indexOf(nota);
+                    if (idx !== -1) copiaPool.splice(idx, 1); else { sePuede = false; break; }
+                }
+                if (sePuede) return combo;
+            }
+            return null;
+        }
+
+        function clickSectorHora(romano) {
+            if (romano === "XII") {
+                document.getElementById('pack-clock-needle').style.transform = `rotate(0deg)`;
+                registrarLog("Astrolabio alineado en el meridiano XII (Contemplación).");
+                return;
+            }
+            
+            let hData = CATALOGO_RELOJ[romano];
+
+            if (hData.reqLimpieza && state.nivelLimpieza === 0) {
+                alert("⚠️ ENTORNO CONTAMINADO: No puedes Jugar, Socializar ni iniciar Proyectos en el caos. Debes realizar tareas de aseo (Olfatearse o Lamerse las heridas) para desbloquear este sector.");
+                return;
+            }
+
+            if (state.accionesBloqueadas[romano]) return;
+
+            let costePagar = evaluarCosteValido(hData.costes);
+            if (!costePagar) return;
+
+            registrarPasoHistorial();
+            costePagar.forEach(nota => {
+                let idx = state.poolNotas.indexOf(nota);
+                if (idx !== -1) state.poolNotas.splice(idx, 1);
+            });
+
+            if (hData.boostLimpieza) {
+                state.nivelLimpieza = Math.min(5, state.nivelLimpieza + hData.boostLimpieza);
+            }
+
+            document.getElementById('pack-clock-needle').style.transform = `rotate(${hData.angulo}deg)`;
+            registrarLog(`[OCIO COMPRADO]: Sector ${romano} ➔ ${hData.nombre}. Gasto: [${costePagar.join(', ')}].`);
+            guardarEnDisco(); actualizarUI();
+        }
+
+        function renderizarSectoresReloj() {
+            const face = document.getElementById('pack-clock-face');
+            const radio = 142; const cx = 190; const cy = 190;
+
+            Object.keys(CATALOGO_RELOJ).forEach(romano => {
+                let hData = CATALOGO_RELOJ[romano];
+                let div = document.createElement('div');
+                div.className = 'sector-hora'; div.id = `sector-${romano}`;
+                div.setAttribute('onclick', `clickSectorHora('${romano}')`);
+
+                let rad = (hData.angulo - 90) * (Math.PI / 180);
+                let x = cx + radio * Math.cos(rad) - 55; let y = cy + radio * Math.sin(rad) - 22;
+                div.style.left = `${x}px`; div.style.top = `${y}px`;
+
+                face.appendChild(div);
+            });
+        }
+
+        function construirCodiceInferior() {
+            const root = document.getElementById('lista-codice-ui'); root.innerHTML = '';
+            Object.keys(CATALOGO_RELOJ).forEach(romano => {
+                if(romano === "XII") return;
+                let hData = CATALOGO_RELOJ[romano];
+                let comboStrings = hData.costes.map(arr => arr.join('+')).join(' / ');
+                let div = document.createElement('div'); div.className = 'codice-item';
+                div.innerHTML = `<span style="color:var(--azul-ego); font-weight:bold;">${romano}</span> | <span style="color:#fff; font-weight:bold;">${hData.nombre}</span>: <span style="color:#718096; font-size:0.75rem;">${comboStrings}</span>`;
+                root.appendChild(div);
+            });
+        }
+
+        function limpiarTodoPool() {
+            if(confirm("¿Purgar el pool completo?")) { registrarPasoHistorial(); state.poolNotas = []; guardarEnDisco(); actualizarUI(); }
+        }
+
+        // ALGORITMO DE BÚSQUEDA CORREGIDO PARA "DS" COMO NOTA ÚNICA
+        function evaluarCoincidenciaFiltro(costesCombo, query) {
+            if (!query) return false;
+            
+            // Tokenizar la búsqueda del usuario (priorizando 'DS')
+            let queryTokens = [];
+            let qUpper = query.toUpperCase();
+            for (let i = 0; i < qUpper.length; i++) {
+                if (qUpper[i] === 'D' && qUpper[i+1] === 'S') {
+                    queryTokens.push('DS'); i++;
+                } else if (['S', 'O', 'L', 'D'].includes(qUpper[i])) {
+                    queryTokens.push(qUpper[i]);
+                }
+            }
+
+            if (queryTokens.length === 0) return false;
+
+            // Comprobar si algún combo de costo contiene las fichas del filtro
+            return costesCombo.some(combo => {
+                return queryTokens.every(qToken => combo.includes(qToken));
+            });
+        }
+
+        function actualizarUI() {
+            document.getElementById('txt-limpieza-val').innerText = state.nivelLimpieza;
+            const fillLimpieza = document.getElementById('fill-limpieza-bar');
+            const badgeLimpieza = document.getElementById('display-habitat-status');
+            
+            let pctLimpieza = (state.nivelLimpieza / 5) * 100;
+            fillLimpieza.style.width = `${pctLimpieza}%`;
+
+            if (state.nivelLimpieza === 5) {
+                badgeLimpieza.className = "habitat-badge badge-santuario";
+                badgeLimpieza.innerText = "🌟 SANTUARIO IMPECABLE";
+                fillLimpieza.style.backgroundColor = "var(--verde-triage)";
+            } else if (state.nivelLimpieza >= 2) {
+                badgeLimpieza.className = "habitat-badge badge-habitable";
+                badgeLimpieza.innerText = "🛡️ HÁBITAT OPERATIVO";
+                fillLimpieza.style.backgroundColor = "var(--amarillo-mood)";
+            } else {
+                badgeLimpieza.className = "habitat-badge badge-contaminado";
+                let tagImpuesto = state.impuestoDescomposicionPendiente ? " (IMPUESTO PENDIENTE)" : "";
+                badgeLimpieza.innerText = "⚠️ ENTORNO CONTAMINADO" + tagImpuesto;
+                fillLimpieza.style.backgroundColor = "var(--rojo-frenesi)";
+            }
+
+            const pCont = document.getElementById('contenedor-pool-visual');
+            if(state.poolNotas.length === 0) pCont.innerText = "- Sin frecuencias en el inventario.";
+            else {
+                pCont.innerHTML = '';
+                state.poolNotas.forEach(n => {
+                    let s = document.createElement('span'); s.className = 'nota-token'; s.innerText = n; pCont.appendChild(s);
+                });
+            }
+
+            Object.keys(CATALOGO_RELOJ).forEach(romano => {
+                let hData = CATALOGO_RELOJ[romano];
+                let sDiv = document.getElementById(`sector-${romano}`);
+                let isLocked = state.accionesBloqueadas[romano] ? true : false;
+                let isContaminadoBloqueo = hData.reqLimpieza && state.nivelLimpieza === 0;
+                let sePuedePagar = evaluarCosteValido(hData.costes) !== null;
+
+                sDiv.className = 'sector-hora';
+
+                if (romano === "XII") {
+                    sDiv.classList.add('sector-iluminado');
+                    sDiv.innerHTML = `<strong>${romano}</strong><br><span style="font-size:0.6rem; color:#5a6e72;">${hData.nombre}</span>`;
+                    return;
+                }
+
+                if (isLocked || isContaminadoBloqueo) sDiv.classList.add('sector-bloqueado');
+                else if (sePuedePagar) sDiv.classList.add('sector-iluminado');
+
+                // BÚSQUEDA CORREGIDA
+                if (filtroNotasBusqueda !== "") {
+                    let esMatch = evaluarCoincidenciaFiltro(hData.costes, filtroNotasBusqueda);
+                    if (esMatch) sDiv.classList.add('sector-filtrado-resaltado');
+                }
+
+                let lockLabel = isLocked ? 'LOCKED' : 'LOCK';
+                let lockClass = isLocked ? 'btn-lock-toggle locked' : 'btn-lock-toggle';
+                let tagLockContaminado = isContaminadoBloqueo ? '<span style="color:var(--rojo-frenesi); font-size:0.55rem;">[CONTAMINADO]</span>' : '';
+
+                sDiv.innerHTML = `
+                    <strong>${romano} ${hData.nombre}</strong>
+                    <span style="font-size:0.55rem; color:#5a6e72; line-height:1;">(${hData.desc})</span>
+                    ${tagLockContaminado}
+                    <button class="${lockClass}" onclick="toggleBloqueoHora('${romano}', event)">${lockLabel}</button>
+                `;
+            });
+        }
+
+        window.addEventListener('keydown', function(e) { if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); deshacer(); } });
+
+        iniciarGuarida();
+    </script>
+</body>
+</html>
