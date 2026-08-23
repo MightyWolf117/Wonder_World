@@ -1,0 +1,29 @@
+:root {
+  /* Colors */
+  --bg-principal: #08090c;
+  --bg-tarjeta: #12141c;
+  --borde: #1f2430;
+  
+  /* Thematic Accents */
+  --azul-ego: #00d9ff;
+  --verde-triage: #00ff66;
+  --rojo-frenesi: #ff3333;
+  --amarillo-mood: #ffcc00;
+  --oro-moneda: #ffd700;
+  --morado-secreto: #9f7aea;
+  --texto-plata: #c0c0c0;
+  --rojo-alerta: #ff3333;
+  
+  /* Text */
+  --texto: #e2e8f0;
+  --texto-secundario: #a0aec0;
+  --texto-muted: #626e7f;
+
+  /* Typography */
+  --fuente-hud: 'Courier New', Courier, monospace;
+  --fuente-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* Effects */
+  --neon-glow: rgba(0, 217, 255, 0.15);
+  --crisis-glow: rgba(255, 51, 51, 0.15);
+}

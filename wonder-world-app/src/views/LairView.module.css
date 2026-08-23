@@ -1,0 +1,126 @@
+.contenedor {
+  padding-bottom: 40px;
+}
+
+.panelHabitat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  background: #04080e;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 25px;
+}
+
+.habitatInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.barraLimpiezaBg {
+  width: 150px;
+  height: 10px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  border: 1px solid var(--borde);
+  margin-top: 5px;
+}
+
+.barraLimpiezaFill {
+  height: 100%;
+  background: var(--verde-triage);
+  transition: width 0.3s ease;
+}
+
+.inputSection {
+  background: #0b131f;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--borde);
+  margin-bottom: 25px;
+}
+
+.inputMelody {
+  width: 100%;
+  background: #04080e;
+  border: 1px solid var(--borde);
+  color: var(--verde-triage);
+  padding: 10px;
+  font-family: var(--fuente-hud);
+  font-size: 1rem;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.frecuenciasPool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 15px;
+  background: #04060a;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  justify-content: space-around;
+  margin-bottom: 25px;
+}
+
+.frecuenciaToken {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.frecuenciaNombre {
+  font-size: 0.8rem;
+  color: #a0aec0;
+}
+
+.astrolabeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.sectorCard {
+  background: #090f16;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectorHeader {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed var(--borde);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.sectorRomano { color: var(--azul-ego); font-weight: bold; }
+.sectorNombre { font-weight: bold; color: white; }
+
+.sectorCostes {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-bottom: 10px;
+}
+
+.sectorBloqueado {
+  background: rgba(255,51,51,0.05);
+  border-color: rgba(255,51,51,0.3);
+}
+
+.alquimiaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}

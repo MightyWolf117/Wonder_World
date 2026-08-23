@@ -1,0 +1,190 @@
+.contenedor {
+  padding-bottom: 40px;
+}
+
+.hudRecursos {
+  background: var(--bg-panel);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 15px;
+  margin-bottom: 25px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.recursoCaja {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.recursoTitulo {
+  font-family: var(--fuente-hud);
+  font-size: 0.75rem;
+  color: var(--texto-secundario);
+  letter-spacing: 1px;
+}
+
+.recursoValor {
+  font-size: 1.8rem;
+  font-weight: bold;
+  font-family: var(--fuente-hud);
+}
+
+.controlesRecurso {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btnControl {
+  background: #0d121c;
+  border: 1px solid var(--borde);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.btnControl:hover {
+  background: #1a2436;
+}
+
+.canjesContainer {
+  margin-bottom: 30px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.canjesHeader {
+  background: #111a24;
+  padding: 12px 15px;
+  font-family: var(--fuente-hud);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.canjesBody {
+  padding: 15px;
+  background: #04060a;
+}
+
+.tablaCanjes {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tablaCanjes th, .tablaCanjes td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--borde);
+  font-size: 0.85rem;
+}
+
+.btnTrade {
+  background: #0a111a;
+  border: 1px solid var(--azul-ego);
+  color: var(--azul-ego);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btnTrade:hover:not(:disabled) { background: #111d2b; }
+.btnTrade:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--borde); color: var(--texto-secundario); }
+
+/* Tropas */
+.seccionTitulo {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gridTropas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.cardTropa {
+  background: var(--bg-panel);
+  border: 1px solid var(--verde-triage);
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.tropaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.tropaNombre {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.tropaBeneficio {
+  font-size: 0.8rem;
+  color: var(--verde-suerte, #48bb78);
+  margin-top: 4px;
+}
+
+.miembrosList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.miembroItem {
+  background: #0a0b0e;
+  border: 1px solid var(--borde);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.miembroNombre { font-weight: bold; font-size: 0.85rem; color: #e2e8f0; }
+.miembroEfecto { font-size: 0.75rem; color: var(--texto-secundario); margin-top: 2px; }
+
+/* Tienda Secreta */
+.gridSecreta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.cardSecreta {
+  background: #0a050f;
+  border: 1px solid var(--morado-secreto, #9f7aea);
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(159, 122, 234, 0.1);
+}
+
+.secretaNombre {
+  font-weight: bold;
+  color: var(--morado-secreto, #9f7aea);
+  margin-bottom: 8px;
+}
+
+.secretaEfecto {
+  font-size: 0.8rem;
+  color: #cbd5e0;
+  margin-bottom: 15px;
+}

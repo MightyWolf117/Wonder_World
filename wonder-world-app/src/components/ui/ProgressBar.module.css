@@ -1,0 +1,54 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.barHeader {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--fuente-hud, monospace);
+  font-size: 0.65rem;
+  color: #a0aec0;
+}
+
+.barLabel {
+  text-transform: uppercase;
+}
+
+.barValue {
+  font-weight: bold;
+  color: #fff;
+}
+
+.barContainer {
+  background: #111a16;
+  border: 1px solid var(--borde, #3c2f25);
+  height: 12px;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.fillAzul {
+  background-color: var(--azul-ego);
+}
+
+.fillVerde {
+  background-color: var(--verde-triage);
+}
+
+.fillAmarillo {
+  background-color: var(--amarillo-mood);
+}
+
+.fillRojo {
+  background-color: var(--rojo-frenesi);
+}

@@ -1,0 +1,147 @@
+.barraSuperior {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.triageRojo { color: var(--rojo-corrosion); }
+.triageVerde { color: var(--verde-triage); }
+.triageAmarillo { color: var(--amarillo-mood); }
+
+.camaraCombustion {
+  background-color: #06070a;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.inputMelodia {
+  width: 100%;
+  background-color: #111520;
+  border: 1px solid var(--borde);
+  color: var(--azul-ego);
+  padding: 10px;
+  border-radius: 4px;
+  font-family: var(--fuente-hud);
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  box-sizing: border-box;
+  text-transform: uppercase;
+  flex: 2;
+  min-width: 240px;
+}
+
+.btnMelodia {
+  padding: 0 20px;
+  font-size: 0.85rem;
+  background-color: #0c1624;
+  border: 1px solid var(--azul-ego);
+  color: var(--azul-ego);
+  height: 42px;
+  cursor: pointer;
+  font-family: var(--fuente-hud);
+  font-weight: bold;
+}
+.btnMelodia:hover { background-color: #122136; }
+
+.gridEgos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.egoCard {
+  background-color: var(--bg-tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+
+.egoCardCorroido {
+  border-color: var(--rojo-corrosion) !important;
+  box-shadow: 0 0 15px rgba(255, 51, 51, 0.2) !important;
+}
+
+.fotoPlaceholder {
+  width: 100%;
+  height: 180px;
+  background-color: #06070a;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--fuente-hud);
+  color: #4a5568;
+}
+
+.fotoEgo {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+}
+
+.egoNombre {
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: var(--fuente-hud);
+  color: #fff;
+}
+.egoNombreCorroido {
+  color: var(--rojo-corrosion) !important;
+}
+
+.btnActivar {
+  width: 100%;
+  padding: 8px;
+  background-color: #06070a;
+  border: 1px solid var(--borde);
+  color: #fff;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-family: var(--fuente-hud);
+  font-weight: bold;
+}
+.btnActivar:hover:not(:disabled) {
+  border-color: var(--azul-ego);
+  background-color: #0c1624;
+  color: var(--azul-ego);
+}
+.btnActivarCorroido {
+  border-color: var(--rojo-corrosion) !important;
+  background-color: #260f0f !important;
+  color: #ff9999 !important;
+}
+.btnActivarCorroido:hover:not(:disabled) {
+  background-color: #3d1515 !important;
+}
+.btnActivar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cooldownBadge {
+  font-family: var(--fuente-hud);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  background: #06070a;
+  border: 1px solid var(--borde);
+  color: var(--amarillo-mood);
+}

@@ -1,0 +1,112 @@
+.contenedor {
+  padding-bottom: 40px;
+}
+
+.hudSuperior {
+  display: flex;
+  justify-content: space-between;
+  background: var(--bg-panel);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
+.bloqueInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ammoPool {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 10px;
+  background: #04080e;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  min-height: 40px;
+  align-items: center;
+}
+
+.bulletToken {
+  background: var(--verde-triage);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.bulletTokenS {
+  background: var(--azul-ego);
+}
+
+.formCrear {
+  background: #0b131f;
+  border: 1px solid var(--borde);
+  padding: 15px;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.formCrear input, .formCrear select {
+  background: #04080e;
+  border: 1px solid var(--borde);
+  color: #fff;
+  padding: 8px;
+  font-family: var(--fuente-hud);
+  font-size: 0.8rem;
+  border-radius: 2px;
+}
+
+.gridJefes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.jefeCard {
+  background: #090f16;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jefeCard.terminado { border-color: var(--verde-triage); background: #081a11; }
+.jefeCard.domado { border-color: var(--oro-ejecucion, #d69e2e); background: #1c190a; }
+.jefeCard.enrage { border-color: var(--rojo-frenesi); background: #260c0c; box-shadow: 0 0 10px rgba(255,51,51,0.2); }
+
+.jefeHeader {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed var(--borde);
+  padding-bottom: 6px;
+}
+
+.jefeNombre { font-weight: bold; }
+.jefeBadge { font-size: 0.6rem; padding: 2px 6px; border-radius: 2px; text-transform: uppercase; font-weight: bold; }
+.badgeDomable { background: #182b3c; color: var(--azul-ego); }
+.badgeIndomable { background: #2b1c3c; color: #cc00ff; }
+
+.jefeDesc { font-size: 0.8rem; color: #a0aec0; }
+
+.barraHp {
+  height: 10px;
+  background: #1a1a1a;
+  border: 1px solid #2d2d2d;
+  border-radius: 2px;
+  margin-bottom: 5px;
+}
+.fillRuptura { height: 100%; background: var(--azul-ego); transition: width 0.3s; }
+.fillEjecucion { height: 100%; background: var(--oro-ejecucion, #d69e2e); transition: width 0.3s; }
+
+.actions { display: flex; gap: 5px; margin-top: auto; }

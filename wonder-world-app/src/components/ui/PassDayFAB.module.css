@@ -1,0 +1,65 @@
+.fabContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.fabButton {
+  display: flex;
+  align-items: center;
+  background-color: var(--rojo-alerta, #ff3333);
+  color: white;
+  border-radius: 50px;
+  padding: 15px;
+  box-shadow: 0 4px 15px rgba(255, 51, 51, 0.4);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  max-width: 50px;
+  white-space: nowrap;
+}
+
+.fabButton:hover {
+  max-width: 200px;
+  background-color: var(--rojo-corrosion, #cc0000);
+}
+
+.fabIcon {
+  font-size: 1.2rem;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+.fabText {
+  font-family: var(--fuente-hud, monospace);
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.fabButton:hover .fabText {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .fabButton {
+    /* En móvil lo mostramos expandido o lo dejamos igual para que toquen y abra modal? 
+       El usuario dijo: "donde al darle un toque se expande para decir el label completo y abrir la ventana de advertencia"
+       Hover no existe en móvil. Podemos dejarlo solo como un icono, o mostrarlo expandido.
+       Vamos a hacerlo semi-expandido o que el click abra el modal directamente (lo cual ya hace).
+    */
+    padding: 12px 20px;
+    max-width: 200px;
+  }
+  .fabText {
+    opacity: 1;
+    font-size: 0.9rem;
+  }
+  .fabIcon {
+    margin-right: 8px;
+  }
+}

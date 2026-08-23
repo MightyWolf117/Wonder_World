@@ -1,0 +1,42 @@
+.button {
+  background-color: #06070a;
+  border: 1px solid var(--borde);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  font-family: var(--fuente-hud);
+  transition: all 0.2s ease;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--azul-ego);
+  background-color: #12141c;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.variantAdvance {
+  background-color: #0c1a16;
+  border-color: #14352b;
+  color: #4ade80;
+}
+
+.variantAdvance:hover:not(:disabled) {
+  background-color: #112921;
+  border-color: var(--verde-triage);
+}
+
+.variantDanger {
+  color: var(--rojo-frenesi);
+  border-color: #3d1414;
+}
+
+.variantDanger:hover:not(:disabled) {
+  border-color: var(--rojo-frenesi);
+}

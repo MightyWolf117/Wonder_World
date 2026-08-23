@@ -1,0 +1,175 @@
+.contenedor {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.hudDeltas {
+  background-color: #060b12;
+  border: 2px solid var(--borde);
+  border-radius: 4px;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+}
+
+.deltaStatBox {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.deltaCard {
+  text-align: center;
+  font-family: var(--fuente-hud);
+  min-width: 65px;
+}
+
+.deltaTitulo {
+  font-size: 0.7rem;
+  color: #52667a;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.deltaValor {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.gridLayout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+@media (max-width: 950px) { 
+  .gridLayout { grid-template-columns: 1fr; } 
+}
+
+.panel {
+  border: 1px solid var(--borde);
+  padding: 20px;
+  border-radius: 4px;
+  height: fit-content;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.panelIzq { background-color: #0a120f; }
+.panelDer { background-color: #0b111a; }
+
+.panel h2 {
+  font-size: 0.95rem;
+  margin-top: 0;
+  border-left: 3px solid var(--texto-secundario, #cbd5e1);
+  padding-left: 8px;
+  font-family: var(--fuente-hud);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lineaTarea {
+  background: #04070a;
+  border: 1px solid #16201a;
+  padding: 10px 14px;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tareaRowMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.tareaInfo {
+  flex: 1;
+  font-family: var(--fuente-hud);
+}
+
+.tareaNombre {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tareaDescFx {
+  font-size: 0.72rem;
+  color: #506959;
+  margin-top: 2px;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 4px;
+}
+
+.btnTactic {
+  background: #090e14;
+  border: 1px solid #1c2b3d;
+  color: #4b5d6c;
+  padding: 6px 10px;
+  font-size: 0.7rem;
+  font-family: var(--fuente-hud);
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.1s ease;
+}
+.btnTactic:hover { color: #fff; border-color: #cbd5e1; }
+.activeCumplida { background: #082410 !important; border-color: var(--verde-triage) !important; color: var(--verde-triage) !important; text-shadow: 0 0 4px var(--verde-triage); }
+.activeSaltada { background: #241e0a !important; border-color: var(--amarillo-mood) !important; color: var(--amarillo-mood) !important; }
+
+.badgeTag {
+  font-size: 0.6rem;
+  font-family: var(--fuente-hud);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: #1a2636;
+  color: var(--azul-ego);
+}
+
+.formBox {
+  padding: 15px; 
+  background: #03060a; 
+  border-top: 1px solid var(--borde);
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.formGrid {
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 8px; 
+  margin-bottom: 10px;
+}
+
+.inputStyled {
+  background: #0b121c; 
+  border: 1px solid var(--borde); 
+  color: #fff; 
+  padding: 6px; 
+  font-family: var(--fuente-hud); 
+  font-size: 0.8rem;
+}

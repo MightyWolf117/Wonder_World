@@ -1,0 +1,60 @@
+.gridStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.statValueSmall {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.statValueExtra {
+  font-size: 0.7rem;
+  color: var(--texto-secundario);
+}
+
+.tarjetaLarga {
+  margin-bottom: 15px;
+  text-align: left;
+  padding: 10px 15px;
+}
+
+.condicionesTitulo {
+  margin-bottom: 6px;
+  font-size: 0.7rem;
+  color: var(--texto-muted);
+  font-family: var(--fuente-hud);
+  text-transform: uppercase;
+}
+
+.botonesRapidos {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.btnLargo {
+  margin-bottom: 0;
+  justify-content: center;
+  background-color: #1b2234;
+  border-color: #2d3a58;
+}
+
+.btnLargo:hover:not(:disabled) {
+  background-color: #222a40;
+}
+
+.btnWarning {
+  margin-bottom: 0;
+  justify-content: center;
+  background-color: #241919;
+  border-color: #422d2d;
+  color: #ff9999;
+}
+
+.btnWarning:hover:not(:disabled) {
+  background-color: #2d1f1f;
+}

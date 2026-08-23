@@ -1,0 +1,19 @@
+.terminalLog {
+  background-color: #050609;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-family: var(--fuente-hud);
+  font-size: 0.85rem;
+  color: #a0aec0;
+  margin-bottom: 20px;
+  min-height: 120px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-left: 3px solid var(--azul-ego);
+  text-align: left;
+}
+
+.logEntry {
+  margin-bottom: 4px;
+}
