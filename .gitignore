@@ -1,0 +1,33 @@
+# Archivos de entorno
+.env
+.env.*
+.env.local
+
+# Archivos Markdown
+*.md
+# Excepción: No ignorar los markdowns de tu carpeta de guías (.agent)
+!.agent/*.md
+
+# Node Modules
+node_modules/
+npm-debug.log
+
+# Android y dependencias
+.gradle/
+build/
+local.properties
+
+# Ejecutables y compilados
+*.exe
+*.dll
+*.so
+*.dylib
+*.apk
+*.aab
+wonder-world-app/src-tauri/target/
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
