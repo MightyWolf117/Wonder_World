@@ -149,6 +149,23 @@
   color: var(--azul-ego);
 }
 
+.lineaDeuda {
+  background: #1a0a0a;
+  border-color: var(--rojo-crisis, #ff3333);
+}
+
+.badgeReincidencia {
+  font-size: 0.6rem;
+  font-family: var(--fuente-hud);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: #330000;
+  color: var(--rojo-alerta, #ff3333);
+  margin-left: 5px;
+}
+
 .formBox {
   padding: 15px; 
   background: #03060a; 

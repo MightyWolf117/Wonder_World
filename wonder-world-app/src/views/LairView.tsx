@@ -139,34 +139,55 @@ export const LairView: React.FC = () => {
       </div>
 
       <div style={{ marginBottom: '15px' }}>⏱️ ASTROLABIO DE LA MANADA (Sectores de Ocio)</div>
-      <div className={styles.astrolabeGrid}>
-        {CATALOGO_RELOJ.map(sector => {
+      {gameState.impuestoDescomposicionPendiente && (
+        <div style={{ background: '#330000', border: '1px solid var(--rojo-frenesi)', padding: '10px', color: '#ff9999', fontSize: '0.85rem', marginBottom: '15px', fontFamily: 'var(--fuente-hud)' }}>
+          ⚠️ IMPUESTO DE DESCOMPOSICIÓN ACTIVO: Debido al estado de Entorno Caótico, la próxima frecuencia inyectada será destruida por el sistema.
+        </div>
+      )}
+      <div className={styles.astrolabeContainer}>
+        {/* Centro del Astrolabio */}
+        <div style={{ position: 'absolute', width: '50px', height: '50px', borderRadius: '50%', background: '#0c1624', border: '2px solid var(--azul-ego)', boxShadow: '0 0 15px var(--azul-ego)' }}></div>
+        
+        {CATALOGO_RELOJ.map((sector, index) => {
           const isBlockedByLimpieza = sector.reqLimpieza && limpieza === 0;
           const validCost = getValidCost(sector.costes, pool);
 
+          // Matemáticas del círculo
+          const radius = 200; // px
+          const angle = (index / CATALOGO_RELOJ.length) * 2 * Math.PI - (Math.PI / 2); // Empezar arriba (-90deg)
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+
           return (
-            <div key={sector.id} className={`${styles.sectorCard} ${isBlockedByLimpieza ? styles.sectorBloqueado : ''}`}>
+            <div 
+              key={sector.id} 
+              className={`${styles.sectorNode} ${isBlockedByLimpieza ? styles.sectorBloqueado : ''}`}
+              style={{
+                transform: `translate(${x}px, ${y}px)`,
+                borderColor: validCost && !isBlockedByLimpieza ? 'var(--azul-ego)' : ''
+              }}
+            >
               <div className={styles.sectorHeader}>
                 <span className={styles.sectorRomano}>{sector.id}</span>
-                <span className={styles.sectorNombre}>{sector.nombre}</span>
               </div>
-              <div style={{ color: 'var(--verde-triage)', fontSize: '0.75rem', marginBottom: '8px' }}>Efecto: {sector.desc}</div>
+              <div className={styles.sectorNombre} style={{ fontSize: '0.75rem', textAlign: 'center', marginBottom: '4px' }}>{sector.nombre}</div>
+              <div style={{ color: 'var(--verde-triage)', fontSize: '0.65rem', marginBottom: '4px', textAlign: 'center' }}>{sector.desc}</div>
               
-              <div className={styles.sectorCostes}>
-                Costes válidos: {sector.costes.map(c => c.join("+")).join(" o ")}
+              <div className={styles.sectorCostes} style={{ fontSize: '0.65rem', textAlign: 'center' }}>
+                {sector.costes.map(c => c.join("+")).join(" o ")}
               </div>
 
               {isBlockedByLimpieza ? (
-                <div style={{ color: 'var(--rojo-frenesi)', fontSize: '0.75rem', marginTop: 'auto' }}>
-                  ⚠️ Bloqueado por Entorno Caótico
+                <div style={{ color: 'var(--rojo-frenesi)', fontSize: '0.65rem', marginTop: 'auto', textAlign: 'center' }}>
+                  ⚠️ Bloqueado
                 </div>
               ) : (
                 <Button 
                   disabled={loading || !validCost} 
                   onClick={() => handleActivate(sector.id, validCost!)}
-                  style={{ marginTop: 'auto', borderColor: validCost ? 'var(--azul-ego)' : 'var(--borde)' }}
+                  style={{ marginTop: 'auto', fontSize: '0.65rem', padding: '4px', borderColor: validCost ? 'var(--azul-ego)' : 'var(--borde)' }}
                 >
-                  {validCost ? `Activar (${validCost.join('+')})` : 'Frecuencias Insuficientes'}
+                  {validCost ? `Activar (${validCost.join('+')})` : 'Insuficiente'}
                 </Button>
               )}
             </div>

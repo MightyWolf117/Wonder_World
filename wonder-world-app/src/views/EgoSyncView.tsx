@@ -12,9 +12,9 @@ export const EgoSyncView: React.FC = () => {
   const [melody, setMelody] = useState('');
   const [logs, setLogs] = useState<string[]>(['Matriz v2.0 en línea. Esperando directrices...']);
 
-  const [newEgo, setNewEgo] = useState({ id: '', nombreNormal: '', nombreCorroido: '', cd: '', imagenBase64: '' });
+  const [newEgo, setNewEgo] = useState({ id: '', nombreNormal: '', nombreCorroido: '', cd: '', imagenNormalB64: '', imagenCorroidaB64: '' });
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, tipo: 'normal'|'corroida') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -45,7 +45,11 @@ export const EgoSyncView: React.FC = () => {
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
           const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          setNewEgo(prev => ({ ...prev, imagenBase64: dataUrl }));
+          if (tipo === 'normal') {
+            setNewEgo(prev => ({ ...prev, imagenNormalB64: dataUrl }));
+          } else {
+            setNewEgo(prev => ({ ...prev, imagenCorroidaB64: dataUrl }));
+          }
         }
       };
       img.src = event.target?.result as string;
@@ -102,10 +106,12 @@ export const EgoSyncView: React.FC = () => {
         cooldownActual: 0,
         descNormal: 'Nuevo aliado registrado en la Matriz.',
         descCorroida: 'Aliado inestable.',
-        imagenBase64: newEgo.imagenBase64 || undefined
+        imagenNormalB64: newEgo.imagenNormalB64 || undefined,
+        imagenCorroidaB64: newEgo.imagenCorroidaB64 || undefined,
+        afinidad: 'N/A'
       });
       addLog(`Nuevo E.G.O. registrado en base de datos: ${newEgo.id}`);
-      setNewEgo({ id: '', nombreNormal: '', nombreCorroido: '', cd: '', imagenBase64: '' });
+      setNewEgo({ id: '', nombreNormal: '', nombreCorroido: '', cd: '', imagenNormalB64: '', imagenCorroidaB64: '' });
       loadData();
     } catch(e: any) { addLog(`Error al registrar E.G.O`); }
   };
@@ -152,24 +158,27 @@ export const EgoSyncView: React.FC = () => {
       <div className={styles.gridEgos}>
         {egos.map(ego => {
           const isReady = ego.cooldownActual === 0;
+          const egoIsCorroded = isCorroded || !isReady;
+          const currentImage = egoIsCorroded ? (ego.imagenCorroidaB64 || ego.imagenNormalB64) : ego.imagenNormalB64;
+
           return (
-            <div key={ego.id} className={`${styles.egoCard} ${isCorroded ? styles.egoCardCorroido : ''}`}>
-              {ego.imagenBase64 ? (
-                <img src={ego.imagenBase64} alt={ego.nombreNormal} className={styles.fotoEgo} />
+            <div key={ego.id} className={`${styles.egoCard} ${egoIsCorroded ? styles.egoCardCorroido : ''}`}>
+              {currentImage ? (
+                <img src={currentImage} alt={ego.nombreNormal} className={styles.fotoEgo} />
               ) : (
                 <div className={styles.fotoPlaceholder}>FOTO REQUERIDA</div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                <span className={`${styles.egoNombre} ${isCorroded ? styles.egoNombreCorroido : ''}`}>
-                  {isCorroded ? ego.nombreCorroido : ego.nombreNormal}
+                <span className={`${styles.egoNombre} ${egoIsCorroded ? styles.egoNombreCorroido : ''}`}>
+                  {egoIsCorroded ? ego.nombreCorroido : ego.nombreNormal}
                 </span>
                 {!isReady && <span className={styles.cooldownBadge}>{ego.cooldownActual} DÍAS CD</span>}
               </div>
               <p style={{ fontSize: '0.82rem', minHeight: '60px', color: '#a0aec0' }}>
-                {isCorroded ? ego.descCorroida : ego.descNormal}
+                {egoIsCorroded ? ego.descCorroida : ego.descNormal}
               </p>
               <button 
-                className={`${styles.btnActivar} ${isCorroded ? styles.btnActivarCorroido : ''}`}
+                className={`${styles.btnActivar} ${egoIsCorroded ? styles.btnActivarCorroido : ''}`}
                 onClick={() => handleActivate(ego.id)}
                 disabled={!isReady}
               >
@@ -183,11 +192,20 @@ export const EgoSyncView: React.FC = () => {
       <details style={{ background: 'var(--bg-tarjeta)', border: '1px solid var(--borde)', padding: '15px', marginBottom: '20px', borderRadius: '4px' }}>
         <summary style={{ color: 'var(--verde-triage)', fontFamily: 'var(--fuente-hud)', cursor: 'pointer', fontWeight: 'bold' }}>+ Registrar Nuevo Aliado / E.G.O.</summary>
         
-        {newEgo.imagenBase64 && (
-          <div style={{ marginTop: '15px', textAlign: 'center' }}>
-            <img src={newEgo.imagenBase64} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--borde)' }} />
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
+          {newEgo.imagenNormalB64 && (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: '#a0aec0', fontSize: '0.7rem' }}>Normal</div>
+              <img src={newEgo.imagenNormalB64} alt="Preview Normal" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--borde)' }} />
+            </div>
+          )}
+          {newEgo.imagenCorroidaB64 && (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ color: 'var(--rojo-crisis, #ff3333)', fontSize: '0.7rem' }}>Corroída</div>
+              <img src={newEgo.imagenCorroidaB64} alt="Preview Corroida" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--rojo-crisis, #ff3333)' }} />
+            </div>
+          )}
+        </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginTop: '15px' }}>
           <input placeholder="Clave ID (Ej: kaiser)" value={newEgo.id} onChange={e => setNewEgo({...newEgo, id: e.target.value})} style={{ background: '#0c1017', color: '#fff', border: '1px solid var(--borde)', padding: '8px', fontFamily: 'var(--fuente-hud)' }} />
@@ -196,8 +214,14 @@ export const EgoSyncView: React.FC = () => {
           <input placeholder="Enfriamiento Máximo (Días)" type="number" value={newEgo.cd} onChange={e => setNewEgo({...newEgo, cd: e.target.value})} style={{ background: '#0c1017', color: '#fff', border: '1px solid var(--borde)', padding: '8px', fontFamily: 'var(--fuente-hud)' }} />
           <div style={{ background: '#0c1017', border: '1px solid var(--borde)', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
              <label style={{ color: '#a0aec0', fontFamily: 'var(--fuente-hud)', fontSize: '0.8rem', cursor: 'pointer' }}>
-               Cargar Foto (opcional)
-               <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+               Cargar Foto Normal
+               <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'normal')} style={{ display: 'none' }} />
+             </label>
+          </div>
+          <div style={{ background: '#1a0a0a', border: '1px solid var(--borde-crisis, #ff3333)', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <label style={{ color: '#ff9999', fontFamily: 'var(--fuente-hud)', fontSize: '0.8rem', cursor: 'pointer' }}>
+               Cargar Foto Corroída
+               <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'corroida')} style={{ display: 'none' }} />
              </label>
           </div>
         </div>

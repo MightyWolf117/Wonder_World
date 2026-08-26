@@ -13,17 +13,22 @@ export const getInitialGameState = (): GameState => ({
   mood: 10,
   monedas: 0,
   monedasIrrompibles: 0,
-  rangoActual: "Lobo Errante | Rango E",
+  tituloJugador: "Lobo Errante | Rango E",
+  avatarB64: "",
+  consejoBatallonActual: "Sigue adelante, Caballero de la Luna.",
   afinidadMatrix: "Rebelión",
   sincronizacion: 100,
   corrupcion: 0,
   eventos: 0,
   rompeLimites: 0,
   inestabilidad: 0,
-  triage: "estable",
+  triage: "ESTABLE",
   limpieza: 5,
+  impuestoDescomposicionPendiente: false,
   poolFrecuencias: { "C": 0, "S": 0, "D": 0, "Ds": 0, "L": 0, "O": 0 },
-  activeBosses: []
+  activeBosses: [],
+  deltasAcumulados: { energia: 0, estres: 0, ego: 0, mood: 0, monedas: 0 },
+  pendientesRapidos: []
 });
 
 export const GameStateService = {

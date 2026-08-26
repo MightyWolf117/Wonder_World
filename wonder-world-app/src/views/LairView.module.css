@@ -81,19 +81,39 @@
   color: #a0aec0;
 }
 
-.astrolabeGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 15px;
+.astrolabeContainer {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  border: 2px dashed #1c2636;
+  margin: 40px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, #020408 30%, #060910 70%);
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(0, 217, 255, 0.05);
 }
 
-.sectorCard {
-  background: #090f16;
+.sectorNode {
+  position: absolute;
+  width: 140px;
+  background: #060b13;
   border: 1px solid var(--borde);
-  border-radius: 4px;
-  padding: 15px;
+  border-radius: 6px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.sectorNode:hover {
+  transform: scale(1.1) !important; /* Will overlap with inline transform if not careful, better handled in JS or carefully with wrappers */
+  z-index: 10;
+  box-shadow: 0 0 15px var(--azul-ego);
+  border-color: var(--azul-ego);
 }
 
 .sectorHeader {

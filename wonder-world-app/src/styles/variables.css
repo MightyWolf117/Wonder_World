@@ -26,4 +26,9 @@
   /* Effects */
   --neon-glow: rgba(0, 217, 255, 0.15);
   --crisis-glow: rgba(255, 51, 51, 0.15);
+  
+  /* Crisis State Override Tokens */
+  --bg-crisis: #1a0a0a;
+  --bg-tarjeta-crisis: #2d1010;
+  --borde-crisis: #ff3333;
 }

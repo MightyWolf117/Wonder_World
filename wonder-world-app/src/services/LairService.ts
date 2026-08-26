@@ -11,12 +11,25 @@ export const LairService = {
     return GameStateService.updateState(state => {
       const validas = new Set(["S", "O", "L", "D"]);
       const mel = melody.replace(/"/g, ''); // strip quotes if any
+      let impuestoCobrado = !state.impuestoDescomposicionPendiente;
+
       for (let i = 0; i < mel.length; i++) {
+        let note = "";
         if (i < mel.length - 1 && mel[i] === 'D' && mel[i+1] === 'S') {
-          state.poolFrecuencias["Ds"]++;
+          note = "Ds";
           i++;
         } else if (validas.has(mel[i])) {
-          state.poolFrecuencias[mel[i]]++;
+          note = mel[i];
+        }
+
+        if (note !== "") {
+          if (!impuestoCobrado) {
+            impuestoCobrado = true;
+            state.impuestoDescomposicionPendiente = false;
+            // The note is consumed by the tax and NOT added to the pool
+          } else {
+            state.poolFrecuencias[note]++;
+          }
         }
       }
     });

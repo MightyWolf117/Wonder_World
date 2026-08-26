@@ -20,16 +20,26 @@ export const BossService = {
   attackBoss: (id: string, freqType: string) => {
     return GameStateService.updateState(state => {
       const boss = state.activeBosses.find(b => b.id === id);
-      if (!boss || boss.estadoFinal === "domado" || boss.estadoFinal === "terminado") return;
+      if (!boss || boss.estadoFinal === "domado" || boss.estadoFinal === "terminado" || boss.estadoFinal === "se_acabo" || boss.estadoFinal === "escapo") return;
 
       if (state.poolFrecuencias[freqType] && state.poolFrecuencias[freqType] > 0) {
         state.poolFrecuencias[freqType]--;
 
         if (boss.tipo === "indomable") {
-          if (freqType === "C" && boss.hpRupturaActual > 0) {
-            boss.hpRupturaActual--;
+          // Indomables: Solo se atacan con 'C'
+          if (freqType === "C") {
+            if (boss.hpRupturaActual > 0) {
+              boss.hpRupturaActual--;
+              if (boss.hpRupturaActual === 0) {
+                 boss.estadoFinal = "endless";
+              }
+            } else if (boss.estadoFinal === "endless") {
+              // Modo endless: Ganas cazas extra
+              boss.extraCazas = (boss.extraCazas || 0) + 1;
+            }
           }
         } else if (boss.tipo === "domable") {
+          // Domables: 'C' para ruptura, 'S' para ejecución
           if (boss.hpRupturaActual > 0 && freqType === "C") {
             boss.hpRupturaActual--;
           } else if (boss.hpRupturaActual === 0 && boss.hpEjecucionActual > 0 && freqType === "S") {

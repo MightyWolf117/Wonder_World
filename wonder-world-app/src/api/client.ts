@@ -16,24 +16,41 @@ export interface GameState {
   mood: number;
   monedas: number;
   monedasIrrompibles: number;
-  rangoActual: string;
+  
+  // Perfil Militar
+  tituloJugador: string;
+  avatarB64: string;
+  consejoBatallonActual: string;
+  
   afinidadMatrix: string;
   sincronizacion: number;
   corrupcion: number;
   eventos: number;
   rompeLimites: number;
   inestabilidad: number;
-  triage: string;
+  triage: string; // "ESTABLE" o "ROJO"
   limpieza: number;
-  poolFrecuencias: { [key: string]: number };
+  impuestoDescomposicionPendiente: boolean;
+  
+  poolFrecuencias: { [key: string]: number }; // S, O, L, Ds, D
   activeBosses: BossNode[];
+  
+  // Deltas acumulados
+  deltasAcumulados: RoutinePenalties;
+  // Pendientes rapidos
+  pendientesRapidos: PendienteRapido[];
+}
+
+export interface PendienteRapido {
+  id: string;
+  txt: string;
 }
 
 export interface BossNode {
   id: string;
   nombre: string;
   descripcion: string;
-  tipo: string;
+  tipo: string; // "domable" o "indomable"
   limiteDias: number;
   diasActivos: number;
   hpRupturaMax: number;
@@ -41,9 +58,10 @@ export interface BossNode {
   hpEjecucionMax: number;
   hpEjecucionActual: number;
   restriccion: string;
-  statCastigo: string;
+  statCastigo: string; // energia, estres, mood, ego
   valorCastigo: number;
-  estadoFinal: string;
+  estadoFinal: string; // caza, terminado, domado, enrage, escapo, se_acabo, endless
+  extraCazas: number; // para indomables en endless
 }
 
 export interface EgoNode {
@@ -52,22 +70,24 @@ export interface EgoNode {
   nombreCorroido: string;
   descNormal: string;
   descCorroida: string;
-  descripcion?: string;
-  imagenBase64?: string;
-  nivelRequerido: number;
-  afinidad: string;
-  estado: string;
+  imagenNormalB64?: string;
+  imagenCorroidaB64?: string;
   cooldownMax: number;
   cooldownActual: number;
+  afinidad: string;
 }
 
 export interface RoutineNode {
   id: string;
   nombre: string;
   desc?: string;
-  tipo: string;
-  limite: number;
-  dificultad: number;
+  tipo: string; // "diaria", "nodiaria"
+  freqType?: string; // "semanal", "mensual", "interdiario"
+  days?: number[]; // [0,1,2,3,4,5,6]
+  param?: number; // día del mes
+  castigo: RoutinePenalties;
+  escudoActivo: boolean;
+  reincidenciaCount: number;
   completada: boolean;
 }
 
@@ -76,9 +96,7 @@ export interface RoutinePenalties {
   estres: number;
   ego: number;
   mood: number;
-  limiteMentalRoto: boolean;
-  limiteFisicoRoto: boolean;
-  limiteSocialRoto: boolean;
+  monedas: number;
 }
 
 export interface StoreCatalog {
@@ -91,59 +109,99 @@ export const StateAPI = {
   getInitialState: async (): Promise<GameState> => Promise.resolve(GameStateService.getState()),
   resetState: async (): Promise<GameState> => Promise.resolve(GameStateService.reset()),
   pasarDia: async (): Promise<GameState> => {
-    // Calculate routine penalties BEFORE resetting
-    const est = RoutineService.getEstimation();
+    // Calcular castigos de rutina antes de cambiar el día
+    const allRoutines = RoutineService.getAll();
+    const hoy = new Date();
+    
+    let totalEnergia = 0, totalEstres = 0, totalMood = 0, totalEgo = 0;
+    
+    let perfecto = true;
+
+    allRoutines.forEach(r => {
+      if (RoutineService.evaluarHabitActivoFecha(r, hoy)) {
+        if (r.completada) {
+           r.reincidenciaCount = 0; // Se cumplió
+        } else {
+           perfecto = false;
+           // Falló hoy
+           if (r.escudoActivo) {
+             r.escudoActivo = false; // Se consume el escudo y no pasa nada
+           } else {
+             r.reincidenciaCount++;
+             if ((r.tipo === 'diaria' && r.reincidenciaCount >= 2) || (r.tipo === 'nodiaria' && r.reincidenciaCount >= 2)) {
+               totalEnergia += r.castigo?.energia || 0;
+               totalEstres += r.castigo?.estres || 0;
+               totalMood += r.castigo?.mood || 0;
+               totalEgo += r.castigo?.ego || 0;
+             }
+           }
+        }
+      }
+    });
+
+    RoutineService.saveAll(allRoutines);
     
     let s = GameStateService.updateState(state => {
-      // Apply routine penalties
-      state.energia = Math.min(state.maxEnergia, state.energia + 4 + est.energia); // +4 is daily base recovery, est.energia is negative
-      state.estres = Math.max(0, state.estres + est.estres);
-      state.mood = Math.max(0, Math.min(10, state.mood + est.mood));
-      state.puntosEgo = Math.max(0, state.puntosEgo + est.ego);
+      // Aplicar castigos
+      state.energia = Math.min(state.maxEnergia, state.energia + 4 + totalEnergia);
+      state.estres = Math.max(0, state.estres + totalEstres + 1); // +1 base daily
+      state.mood = Math.max(0, Math.min(10, state.mood + totalMood));
+      state.puntosEgo = Math.max(0, state.puntosEgo + totalEgo);
+      
+      // Registrar en el historial de deltas
+      state.deltasAcumulados.energia = totalEnergia;
+      state.deltasAcumulados.estres = totalEstres;
+      state.deltasAcumulados.mood = totalMood;
+      state.deltasAcumulados.ego = totalEgo;
 
-      if (state.limpieza > 0) state.limpieza--;
+      if (perfecto && allRoutines.filter(r => RoutineService.evaluarHabitActivoFecha(r, hoy)).length > 0) {
+         state.monedas += 1;
+         state.deltasAcumulados.monedas = 1;
+      } else {
+         state.deltasAcumulados.monedas = 0;
+      }
+
+      // Limpieza y Lair
+      if (state.limpieza > 0) {
+        state.limpieza--;
+        if (state.limpieza === 0) {
+          state.impuestoDescomposicionPendiente = true;
+        }
+      } else {
+        state.impuestoDescomposicionPendiente = true; // Sigue en 0
+      }
+      
+      state.poolFrecuencias = {}; // Reset pool
+
+      // Bosses
       state.activeBosses.forEach(b => {
-        if (b.estadoFinal !== "terminado" && b.estadoFinal !== "domado") {
-          if (b.tipo === "indomable") {
-            if (b.hpRupturaActual === 0) {
-              b.diasActivos++;
-              if (b.diasActivos >= b.limiteDias) {
-                b.estadoFinal = "terminado";
-              } else {
-                b.estadoFinal = "activo";
-                b.hpRupturaActual = b.hpRupturaMax;
-              }
+        if (b.estadoFinal === "caza" || b.estadoFinal === "enrage" || b.estadoFinal === "endless" || b.estadoFinal === "terminado") {
+          b.diasActivos++; // Esto actúa como decremento del tiempo límite
+          const diasRestantes = b.limiteDias - b.diasActivos;
+          if (diasRestantes <= 0) {
+            if (b.tipo === "indomable") {
+               b.estadoFinal = "se_acabo";
             } else {
-              b.estadoFinal = "enrage";
-              if (b.statCastigo === "energia") state.energia = Math.max(0, state.energia - b.valorCastigo);
-              else if (b.statCastigo === "estres") state.estres += b.valorCastigo;
-              else if (b.statCastigo === "mood") state.mood = Math.max(0, state.mood - b.valorCastigo);
-              else if (b.statCastigo === "ego") state.puntosEgo = Math.max(0, state.puntosEgo - b.valorCastigo);
-              b.hpRupturaActual = b.hpRupturaMax;
+               if (b.hpRupturaActual > 0) b.estadoFinal = "enrage";
+               else b.estadoFinal = "escapo";
             }
-          } else {
-            // Domable
-            b.diasActivos++;
-            if (b.diasActivos > b.limiteDias) {
-              b.estadoFinal = "enrage";
-              if (b.statCastigo === "energia") state.energia = Math.max(0, state.energia - b.valorCastigo);
-              else if (b.statCastigo === "estres") state.estres += b.valorCastigo;
-              else if (b.statCastigo === "mood") state.mood = Math.max(0, state.mood - b.valorCastigo);
-              else if (b.statCastigo === "ego") state.puntosEgo = Math.max(0, state.puntosEgo - b.valorCastigo);
-            }
+          }
+
+          if (b.estadoFinal === "enrage") {
+            if (b.statCastigo === "energia") state.energia = Math.max(0, state.energia - b.valorCastigo);
+            else if (b.statCastigo === "estres") state.estres += b.valorCastigo;
+            else if (b.statCastigo === "mood") state.mood = Math.max(0, state.mood - b.valorCastigo);
+            else if (b.statCastigo === "ego") state.puntosEgo = Math.max(0, state.puntosEgo - b.valorCastigo);
           }
         }
       });
-      state.estres += 1; // base daily stress
       
-      // Enforce zero limits again just in case
       state.energia = Math.max(0, state.energia);
       state.estres = Math.max(0, state.estres);
     });
 
-    // Reset for new day AFTER applying penalties
     RoutineService.resetForNewDay();
-    EgoService.reduceCooldowns();
+    // EgoService.reduceCooldowns(); (Omitido por ahora si se usa Cámara de Combustión, pero si es diario se puede dejar)
     return Promise.resolve(s);
   },
   resetDay: async (): Promise<GameState> => Promise.resolve(GameStateService.getState()),
